@@ -85,6 +85,8 @@ async function uploadFile(url: string, file: File | Blob, fields?: Record<string
   return res.json();
 }
 
+import { isSupabaseConfigured, supabaseCoupleApi, supabaseChatApi } from './supabaseApi';
+
 /* ─── Couple ─── */
 
 export const coupleApi = {
@@ -93,21 +95,39 @@ export const coupleApi = {
     partner2Name: string;
     coupleNickname: string;
     relationshipStartDate: string;
-  }) => request<ApiResponse<Couple>>('/couples', { method: 'POST', body: JSON.stringify(data) }),
+  }) => {
+    if (isSupabaseConfigured()) {
+      return supabaseCoupleApi.create(data);
+    }
+    return request<ApiResponse<Couple>>('/couples', { method: 'POST', body: JSON.stringify(data) });
+  },
 
-  get: (code: string) => request<ApiResponse<Couple>>(`/couples/${code}`),
+  get: (code: string) => {
+    if (isSupabaseConfigured()) {
+      return supabaseCoupleApi.get(code);
+    }
+    return request<ApiResponse<Couple>>(`/couples/${code}`);
+  },
 
-  join: (code: string, partner: PartnerNumber) =>
-    request<ApiResponse<Couple>>(`/couples/${code}/join`, {
+  join: (code: string, partner: PartnerNumber) => {
+    if (isSupabaseConfigured()) {
+      return supabaseCoupleApi.join(code, partner);
+    }
+    return request<ApiResponse<Couple>>(`/couples/${code}/join`, {
       method: 'POST',
       body: JSON.stringify({ partner }),
-    }),
+    });
+  },
 
-  update: (code: string, data: Partial<Couple>) =>
-    request<ApiResponse<Couple>>(`/couples/${code}`, {
+  update: (code: string, data: Partial<Couple>) => {
+    if (isSupabaseConfigured()) {
+      return supabaseCoupleApi.update(code, data);
+    }
+    return request<ApiResponse<Couple>>(`/couples/${code}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 };
 
 /* ─── Challenge ─── */
@@ -182,16 +202,23 @@ export const voiceApi = {
 
 export const chatApi = {
   getMessages: (coupleId: string, before?: string, limit: number = 50) => {
+    if (isSupabaseConfigured()) {
+      return supabaseChatApi.getMessages(coupleId, before, limit);
+    }
     const params = new URLSearchParams({ coupleId, limit: String(limit) });
     if (before) params.set('before', before);
     return request<ApiResponse<Message[]>>(`/messages?${params}`);
   },
 
-  send: (coupleId: string, partner: PartnerNumber, content: string, type: 'text' | 'image' | 'voice' = 'text', mediaUrl?: string, replyToId?: string) =>
-    request<ApiResponse<Message>>('/messages', {
+  send: (coupleId: string, partner: PartnerNumber, content: string, type: 'text' | 'image' | 'voice' = 'text', mediaUrl?: string, replyToId?: string) => {
+    if (isSupabaseConfigured()) {
+      return supabaseChatApi.send(coupleId, partner, content, type, mediaUrl, replyToId);
+    }
+    return request<ApiResponse<Message>>('/messages', {
       method: 'POST',
       body: JSON.stringify({ coupleId, partner, content, type, mediaUrl, replyToId }),
-    }),
+    });
+  },
 
   delete: (id: string, coupleId: string) =>
     request<ApiResponse<void>>(`/messages/${id}?coupleId=${coupleId}`, { method: 'DELETE' }),
