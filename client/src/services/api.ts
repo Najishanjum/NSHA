@@ -23,71 +23,25 @@ import type {
   ApiResponse,
 } from '@/types';
 
-const API_BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '') || '/api';
+import {
+  isSupabaseConfigured,
+  supabaseCoupleApi,
+  supabaseChallengeApi,
+  supabasePhotoApi,
+  supabaseVoiceApi,
+  supabaseChatApi,
+  supabaseMoodApi,
+  supabaseQuestionApi,
+  supabaseBucketListApi,
+  supabaseLoveNoteExtApi as supabaseLoveNoteApi,
+  supabaseSurpriseExtApi as supabaseSurpriseApi,
+  supabaseDatesApi,
+  supabaseStreakApi,
+  supabaseStatsApi,
+} from './supabaseApi';
 
-async function request<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${url}`, {
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: 'Something went wrong ❤️' }));
-    throw new Error(err.error || 'Something went wrong');
-  }
-  return res.json();
-}
 
-async function uploadFile(url: string, file: File | Blob, fields?: Record<string, string>): Promise<any> {
-  // Convert to base64 Data URL for universal compatibility (Vercel Serverless & Node)
-  let fileData = '';
-  try {
-    fileData = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  } catch {
-    // If FileReader fails, continue with form data
-  }
-
-  // 1. Try JSON payload with base64 Data URL (guaranteed to work seamlessly on serverless)
-  if (fileData) {
-    try {
-      const res = await fetch(`${API_BASE}${url}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...fields,
-          fileData,
-        }),
-      });
-      if (res.ok) {
-        return res.json();
-      }
-    } catch {
-      // Fallback to FormData
-    }
-  }
-
-  // 2. Fallback to multipart FormData
-  const form = new FormData();
-  form.append('file', file);
-  if (fileData) form.append('fileData', fileData);
-  if (fields) {
-    Object.entries(fields).forEach(([k, v]) => form.append(k, v));
-  }
-  const res = await fetch(`${API_BASE}${url}`, { method: 'POST', body: form });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: 'Upload failed' }));
-    throw new Error(err.error || 'Upload failed');
-  }
-  return res.json();
-}
-
-import { isSupabaseConfigured, supabaseCoupleApi, supabaseChatApi } from './supabaseApi';
-
-/* ─── Couple ─── */
+// ─── Couple ───
 
 export const coupleApi = {
   create: (data: {
@@ -95,312 +49,290 @@ export const coupleApi = {
     partner2Name: string;
     coupleNickname: string;
     relationshipStartDate: string;
-  }) => {
-    if (isSupabaseConfigured()) {
-      return supabaseCoupleApi.create(data);
-    }
-    return request<ApiResponse<Couple>>('/couples', { method: 'POST', body: JSON.stringify(data) });
-  },
+  }) => supabaseCoupleApi.create(data),
 
-  get: (code: string) => {
-    if (isSupabaseConfigured()) {
-      return supabaseCoupleApi.get(code);
-    }
-    return request<ApiResponse<Couple>>(`/couples/${code}`);
-  },
+  get: (code: string) => supabaseCoupleApi.get(code),
 
-  join: (code: string, partner: PartnerNumber) => {
-    if (isSupabaseConfigured()) {
-      return supabaseCoupleApi.join(code, partner);
-    }
-    return request<ApiResponse<Couple>>(`/couples/${code}/join`, {
-      method: 'POST',
-      body: JSON.stringify({ partner }),
-    });
-  },
+  join: (code: string, partner: PartnerNumber) => supabaseCoupleApi.join(code, partner),
 
-  update: (code: string, data: Partial<Couple>) => {
-    if (isSupabaseConfigured()) {
-      return supabaseCoupleApi.update(code, data);
-    }
-    return request<ApiResponse<Couple>>(`/couples/${code}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  },
+  update: (code: string, data: Partial<Couple>) => supabaseCoupleApi.update(code, data),
 };
 
-/* ─── Challenge ─── */
+// ─── Challenge ───
 
 export const challengeApi = {
-  getToday: (coupleId: string) =>
-    request<ApiResponse<DailyChallenge>>(`/challenges/today?coupleId=${coupleId}`),
-
-  getByDate: (coupleId: string, date: string) =>
-    request<ApiResponse<DailyChallenge>>(`/challenges/${date}?coupleId=${coupleId}`),
-
-  getHistory: (coupleId: string) =>
-    request<ApiResponse<DailyChallenge[]>>(`/challenges/history?coupleId=${coupleId}`),
+  getToday: (coupleId: string) => supabaseChallengeApi.getToday(coupleId),
+  getByDate: (coupleId: string, date: string) => supabaseChallengeApi.getByDate(coupleId, date),
+  getHistory: (coupleId: string) => supabaseChallengeApi.getHistory(coupleId),
 };
 
-/* ─── Photos ─── */
+// ─── Photos ───
 
 export const photoApi = {
-  upload: (file: File, coupleId: string, partner: PartnerNumber, caption?: string, isChallenge: boolean = true) =>
-    uploadFile('/photos', file, {
-      coupleId,
-      partner: String(partner),
-      caption: caption || '',
-      isChallenge: String(isChallenge),
-    }),
-
-  getToday: (coupleId: string) =>
-    request<ApiResponse<Photo[]>>(`/photos/today?coupleId=${coupleId}`),
-
-  getAll: (coupleId: string, params?: { date?: string; partner?: string; filter?: string; page?: number }) => {
-    const searchParams = new URLSearchParams({ coupleId });
-    if (params?.date) searchParams.set('date', params.date);
-    if (params?.partner) searchParams.set('partner', params.partner);
-    if (params?.filter) searchParams.set('filter', params.filter);
-    if (params?.page) searchParams.set('page', String(params.page));
-    return request<ApiResponse<Photo[]>>(`/photos?${searchParams}`);
+  upload: async (
+    file: File,
+    coupleId: string,
+    partner: PartnerNumber,
+    caption?: string,
+    isChallenge: boolean = true
+  ) => {
+    // Convert File to dataURL for Supabase Storage upload
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    return supabasePhotoApi.upload(dataUrl, coupleId, partner, caption, isChallenge);
   },
 
-  delete: (id: string, coupleId: string) =>
-    request<ApiResponse<void>>(`/photos/${id}?coupleId=${coupleId}`, { method: 'DELETE' }),
+  getToday: (coupleId: string) => supabasePhotoApi.getToday(coupleId),
 
-  toggleFavorite: (id: string, coupleId: string) =>
-    request<ApiResponse<Photo>>(`/photos/${id}/favorite`, {
-      method: 'PATCH',
-      body: JSON.stringify({ coupleId }),
-    }),
+  getAll: (coupleId: string, params?: { date?: string; partner?: string; filter?: string; page?: number }) =>
+    supabasePhotoApi.getAll(coupleId, params),
+
+  delete: (id: string, coupleId: string) => supabasePhotoApi.delete(id, coupleId),
+
+  toggleFavorite: (id: string, coupleId: string) => supabasePhotoApi.toggleFavorite(id, coupleId),
 };
 
-/* ─── Voice/Video ─── */
+// ─── Voice/Video ───
 
 export const voiceApi = {
-  upload: (file: Blob, coupleId: string, partner: PartnerNumber, duration: number, type: 'voice' | 'video' = 'voice', isChallenge: boolean = true) =>
-    uploadFile('/voice', file, {
-      coupleId,
-      partner: String(partner),
-      duration: String(duration),
-      type,
-      isChallenge: String(isChallenge),
-    }),
+  upload: async (
+    file: Blob,
+    coupleId: string,
+    partner: PartnerNumber,
+    duration: number,
+    type: 'voice' | 'video' = 'voice',
+    isChallenge: boolean = true
+  ) => {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    return supabaseVoiceApi.upload(dataUrl, coupleId, partner, duration, type, isChallenge);
+  },
 
-  getToday: (coupleId: string) =>
-    request<ApiResponse<VoiceClip[]>>(`/voice/today?coupleId=${coupleId}`),
-
-  getAll: (coupleId: string) =>
-    request<ApiResponse<VoiceClip[]>>(`/voice?coupleId=${coupleId}`),
-
-  delete: (id: string, coupleId: string) =>
-    request<ApiResponse<void>>(`/voice/${id}?coupleId=${coupleId}`, { method: 'DELETE' }),
+  getToday: (coupleId: string) => supabaseVoiceApi.getToday(coupleId),
+  getAll: (coupleId: string) => supabaseVoiceApi.getAll(coupleId),
+  delete: (id: string, coupleId: string) => supabaseVoiceApi.delete(id, coupleId),
 };
 
-/* ─── Chat ─── */
+// ─── Chat ───
 
 export const chatApi = {
-  getMessages: (coupleId: string, before?: string, limit: number = 50) => {
-    if (isSupabaseConfigured()) {
-      return supabaseChatApi.getMessages(coupleId, before, limit);
-    }
-    const params = new URLSearchParams({ coupleId, limit: String(limit) });
-    if (before) params.set('before', before);
-    return request<ApiResponse<Message[]>>(`/messages?${params}`);
-  },
+  getMessages: (coupleId: string, before?: string, limit: number = 50) =>
+    supabaseChatApi.getMessages(coupleId, before, limit),
 
-  send: (coupleId: string, partner: PartnerNumber, content: string, type: 'text' | 'image' | 'voice' = 'text', mediaUrl?: string, replyToId?: string) => {
-    if (isSupabaseConfigured()) {
-      return supabaseChatApi.send(coupleId, partner, content, type, mediaUrl, replyToId);
-    }
-    return request<ApiResponse<Message>>('/messages', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, partner, content, type, mediaUrl, replyToId }),
-    });
-  },
+  send: (
+    coupleId: string,
+    partner: PartnerNumber,
+    content: string,
+    type: 'text' | 'image' | 'voice' = 'text',
+    mediaUrl?: string,
+    replyToId?: string
+  ) => supabaseChatApi.send(coupleId, partner, content, type, mediaUrl, replyToId),
 
-  delete: (id: string, coupleId: string) =>
-    request<ApiResponse<void>>(`/messages/${id}?coupleId=${coupleId}`, { method: 'DELETE' }),
+  delete: (id: string, coupleId: string) => supabaseChatApi.delete(id, coupleId),
 
   react: (id: string, coupleId: string, partner: PartnerNumber, emoji: string) =>
-    request<ApiResponse<Message>>(`/messages/${id}/react`, {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, partner, emoji }),
-    }),
+    supabaseChatApi.react(id, coupleId, partner, emoji),
 };
 
-/* ─── Calls ─── */
+// ─── Calls (stubbed — not needed for core features) ───
 
 export const callApi = {
-  create: (coupleId: string, caller: PartnerNumber) =>
-    request<ApiResponse<Call>>('/calls', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, caller }),
-    }),
-
-  update: (id: string, data: Partial<Call>) =>
-    request<ApiResponse<Call>>(`/calls/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
-
-  getHistory: (coupleId: string) =>
-    request<ApiResponse<Call[]>>(`/calls/history?coupleId=${coupleId}`),
-
-  getStats: (coupleId: string) =>
-    request<ApiResponse<{ today: { count: number; duration: number }; week: { count: number; duration: number }; total: { count: number; duration: number } }>>(`/calls/stats?coupleId=${coupleId}`),
+  create: async (_coupleId: string, _caller: PartnerNumber): Promise<ApiResponse<Call>> => ({
+    success: true,
+    data: { id: '', coupleId: _coupleId, caller: _caller, status: 'ended', startedAt: new Date().toISOString() } as Call,
+  }),
+  update: async (_id: string, _data: Partial<Call>): Promise<ApiResponse<Call>> => ({ success: true, data: {} as Call }),
+  getHistory: async (_coupleId: string): Promise<ApiResponse<Call[]>> => ({ success: true, data: [] }),
+  getStats: async (_coupleId: string): Promise<ApiResponse<any>> => ({
+    success: true,
+    data: { today: { count: 0, duration: 0 }, week: { count: 0, duration: 0 }, total: { count: 0, duration: 0 } },
+  }),
 };
 
-/* ─── Mood ─── */
+// ─── Mood ───
 
 export const moodApi = {
   set: (coupleId: string, partner: PartnerNumber, mood: MoodValue, note?: string) =>
-    request<ApiResponse<void>>('/mood', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, partner, mood, note }),
-    }),
+    supabaseMoodApi.set(coupleId, partner, mood, note),
 
-  getHistory: (coupleId: string) =>
-    request<ApiResponse<{ date: string; partner1Mood?: MoodValue; partner2Mood?: MoodValue }[]>>(`/mood/history?coupleId=${coupleId}`),
+  getHistory: async (coupleId: string): Promise<ApiResponse<{ date: string; partner1Mood?: MoodValue; partner2Mood?: MoodValue }[]>> => {
+    const res = await supabaseMoodApi.getHistory(coupleId);
+    // Group by date
+    const grouped: Record<string, { date: string; partner1Mood?: MoodValue; partner2Mood?: MoodValue }> = {};
+    for (const entry of res.data || []) {
+      if (!grouped[entry.date]) grouped[entry.date] = { date: entry.date };
+      if (entry.partner === 1) grouped[entry.date].partner1Mood = entry.mood;
+      if (entry.partner === 2) grouped[entry.date].partner2Mood = entry.mood;
+    }
+    return { success: true, data: Object.values(grouped) };
+  },
 };
 
-/* ─── Questions ─── */
+// ─── Questions ───
 
 export const questionApi = {
-  getToday: (coupleId: string) =>
-    request<ApiResponse<{ question: string; partner1Answer?: string; partner2Answer?: string }>>(`/questions/today?coupleId=${coupleId}`),
-
+  getToday: (coupleId: string) => supabaseQuestionApi.getToday(coupleId),
   answer: (coupleId: string, partner: PartnerNumber, answer: string) =>
-    request<ApiResponse<QuestionAnswer>>('/questions/answer', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, partner, answer }),
-    }),
+    supabaseQuestionApi.answer(coupleId, partner, answer),
 };
 
-/* ─── Memories ─── */
+// ─── Memories (derived from photos) ───
 
 export const memoryApi = {
-  getAll: (coupleId: string) =>
-    request<ApiResponse<DailyMemory[]>>(`/memories?coupleId=${coupleId}`),
+  getAll: async (coupleId: string): Promise<ApiResponse<DailyMemory[]>> => {
+    const photos = await supabasePhotoApi.getAll(coupleId);
+    const grouped: Record<string, DailyMemory> = {};
+    for (const p of photos.data || []) {
+      if (!grouped[p.date]) {
+        grouped[p.date] = { date: p.date, coupleId, photos: [], voiceClips: [], hasQuestion: false, totalPoints: 0 };
+      }
+      grouped[p.date].photos.push(p);
+    }
+    return { success: true, data: Object.values(grouped).sort((a, b) => b.date.localeCompare(a.date)) };
+  },
 
-  getByDate: (coupleId: string, date: string) =>
-    request<ApiResponse<DailyMemory>>(`/memories/${date}?coupleId=${coupleId}`),
+  getByDate: async (coupleId: string, date: string): Promise<ApiResponse<DailyMemory>> => {
+    const photos = await supabasePhotoApi.getAll(coupleId, { date });
+    return {
+      success: true,
+      data: { date, coupleId, photos: photos.data || [], voiceClips: [], hasQuestion: false, totalPoints: 0 },
+    };
+  },
 
-  getOnThisDay: (coupleId: string) =>
-    request<ApiResponse<DailyMemory[]>>(`/memories/on-this-day?coupleId=${coupleId}`),
+  getOnThisDay: async (coupleId: string): Promise<ApiResponse<DailyMemory[]>> => {
+    const today = new Date();
+    const mmdd = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const photos = await supabasePhotoApi.getAll(coupleId);
+    const onThisDay = (photos.data || []).filter((p) => p.date.slice(5) === mmdd);
+    const grouped: Record<string, DailyMemory> = {};
+    for (const p of onThisDay) {
+      if (!grouped[p.date]) grouped[p.date] = { date: p.date, coupleId, photos: [], voiceClips: [], hasQuestion: false, totalPoints: 0 };
+      grouped[p.date].photos.push(p);
+    }
+    return { success: true, data: Object.values(grouped) };
+  },
 };
 
-/* ─── Calendar ─── */
+// ─── Calendar ───
 
 export const calendarApi = {
-  getMonth: (coupleId: string, year: number, month: number) =>
-    request<ApiResponse<CalendarDay[]>>(`/calendar/${year}/${month}?coupleId=${coupleId}`),
+  getMonth: async (coupleId: string, year: number, month: number): Promise<ApiResponse<CalendarDay[]>> => {
+    const photos = await supabasePhotoApi.getAll(coupleId);
+    const prefix = `${year}-${String(month).padStart(2, '0')}`;
+    const days: Record<string, CalendarDay> = {};
+    for (const p of (photos.data || []).filter((ph) => ph.date.startsWith(prefix))) {
+      if (!days[p.date]) days[p.date] = { date: p.date, hasPhotos: false, hasVoice: false, hasQuestion: false, photoCount: 0, isComplete: false };
+      days[p.date].hasPhotos = true;
+      days[p.date].photoCount = (days[p.date].photoCount || 0) + 1;
+    }
+    return { success: true, data: Object.values(days) };
+  },
 };
 
-/* ─── Timeline ─── */
+// ─── Timeline ───
 
 export const timelineApi = {
-  get: (coupleId: string) =>
-    request<ApiResponse<TimelineEvent[]>>(`/timeline?coupleId=${coupleId}`),
+  get: async (coupleId: string): Promise<ApiResponse<TimelineEvent[]>> => {
+    const photos = await supabasePhotoApi.getAll(coupleId);
+    const events: TimelineEvent[] = (photos.data || []).slice(0, 50).map((p) => ({
+      id: p.id,
+      coupleId,
+      date: p.date,
+      type: 'photo' as const,
+      title: p.caption || 'Photo shared',
+      description: '',
+      mediaUrl: p.fileUrl,
+      partner: p.partner,
+      createdAt: p.createdAt,
+    }));
+    return { success: true, data: events };
+  },
 };
 
-/* ─── Statistics ─── */
+// ─── Statistics ───
 
 export const statsApi = {
-  get: (coupleId: string) =>
-    request<ApiResponse<CoupleStatistics>>(`/statistics?coupleId=${coupleId}`),
+  get: (coupleId: string) => supabaseStatsApi.get(coupleId),
 };
 
-/* ─── Achievements ─── */
+// ─── Achievements (stubbed) ───
 
 export const achievementApi = {
-  getAll: (coupleId: string) =>
-    request<ApiResponse<{ achievements: Achievement[]; unlocked: UserAchievement[] }>>(`/achievements?coupleId=${coupleId}`),
+  getAll: async (_coupleId: string): Promise<ApiResponse<{ achievements: Achievement[]; unlocked: UserAchievement[] }>> =>
+    ({ success: true, data: { achievements: [], unlocked: [] } }),
 };
 
-/* ─── Streak ─── */
+// ─── Streak ───
 
 export const streakApi = {
-  get: (coupleId: string) =>
-    request<ApiResponse<StreakData>>(`/streak?coupleId=${coupleId}`),
-
-  useFreeze: (coupleId: string) =>
-    request<ApiResponse<StreakData>>('/streak/freeze', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId }),
-    }),
+  get: (coupleId: string) => supabaseStreakApi.get(coupleId),
+  useFreeze: (coupleId: string) => supabaseStreakApi.useFreeze(coupleId),
 };
 
-/* ─── Bucket List ─── */
+// ─── Bucket List ───
 
 export const bucketListApi = {
-  getAll: (coupleId: string) =>
-    request<ApiResponse<BucketListItem[]>>(`/bucket-list?coupleId=${coupleId}`),
+  getAll: (coupleId: string) => supabaseBucketListApi.getAll(coupleId),
 
   create: (coupleId: string, partner: PartnerNumber, title: string, category: string) =>
-    request<ApiResponse<BucketListItem>>('/bucket-list', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, partner, title, category }),
-    }),
+    supabaseBucketListApi.create(coupleId, title, partner, undefined, category),
 
-  toggle: (id: string, coupleId: string) =>
-    request<ApiResponse<BucketListItem>>(`/bucket-list/${id}/toggle`, {
-      method: 'PATCH',
-      body: JSON.stringify({ coupleId }),
-    }),
+  toggle: (id: string, coupleId: string) => supabaseBucketListApi.toggle(id, coupleId),
 
-  delete: (id: string, coupleId: string) =>
-    request<ApiResponse<void>>(`/bucket-list/${id}?coupleId=${coupleId}`, { method: 'DELETE' }),
+  delete: (id: string, coupleId: string) => supabaseBucketListApi.delete(id, coupleId),
 };
 
-/* ─── Love Notes ─── */
+// ─── Love Notes ───
 
 export const loveNoteApi = {
-  getAll: (coupleId: string) =>
-    request<ApiResponse<LoveNote[]>>(`/love-notes?coupleId=${coupleId}`),
+  getAll: (coupleId: string) => supabaseLoveNoteApi.getAll(coupleId),
 
   create: (coupleId: string, partner: PartnerNumber, content: string) =>
-    request<ApiResponse<LoveNote>>('/love-notes', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, partner, content }),
-    }),
+    supabaseLoveNoteApi.create(coupleId, partner, content),
 
-  delete: (id: string, coupleId: string) =>
-    request<ApiResponse<void>>(`/love-notes/${id}?coupleId=${coupleId}`, { method: 'DELETE' }),
+  delete: (id: string, coupleId: string) => supabaseLoveNoteApi.delete(id, coupleId),
 };
 
-/* ─── Surprises ─── */
+// ─── Surprises ───
 
 export const surpriseApi = {
-  getAll: (coupleId: string) =>
-    request<ApiResponse<Surprise[]>>(`/surprises?coupleId=${coupleId}`),
+  getAll: (coupleId: string) => supabaseSurpriseApi.getAll(coupleId),
 
-  create: (coupleId: string, partner: PartnerNumber, data: { title: string; message: string; unlockAt: string }) =>
-    request<ApiResponse<Surprise>>('/surprises', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, fromPartner: partner, ...data }),
-    }),
+  create: (
+    coupleId: string,
+    partner: PartnerNumber,
+    data: { title: string; message: string; unlockAt: string }
+  ) => supabaseSurpriseApi.create(coupleId, partner, data),
 
-  unlock: (id: string, coupleId: string) =>
-    request<ApiResponse<Surprise>>(`/surprises/${id}/unlock`, {
-      method: 'PATCH',
-      body: JSON.stringify({ coupleId }),
-    }),
+  unlock: (id: string, coupleId: string) => supabaseSurpriseApi.unlock(id, coupleId),
 };
 
-/* ─── Important Dates ─── */
+// ─── Important Dates ───
 
 export const datesApi = {
-  getAll: (coupleId: string) =>
-    request<ApiResponse<ImportantDate[]>>(`/dates?coupleId=${coupleId}`),
+  getAll: (coupleId: string) => supabaseDatesApi.getAll(coupleId),
 
-  create: (coupleId: string, partner: PartnerNumber, data: { title: string; date: string; type: string }) =>
-    request<ApiResponse<ImportantDate>>('/dates', {
-      method: 'POST',
-      body: JSON.stringify({ coupleId, addedBy: partner, ...data }),
-    }),
+  create: (
+    coupleId: string,
+    partner: PartnerNumber,
+    data: { title: string; date: string; type: string }
+  ) => supabaseDatesApi.create(coupleId, partner, data),
 
-  delete: (id: string, coupleId: string) =>
-    request<ApiResponse<void>>(`/dates/${id}?coupleId=${coupleId}`, { method: 'DELETE' }),
+  delete: (id: string, coupleId: string) => supabaseDatesApi.delete(id, coupleId),
+};
+
+// ─── Notifications (stubbed) ───
+
+export const notificationApi = {
+  getAll: async (_coupleId: string): Promise<ApiResponse<AppNotification[]>> =>
+    ({ success: true, data: [] }),
+  markRead: async (_id: string): Promise<ApiResponse<void>> => ({ success: true }),
 };

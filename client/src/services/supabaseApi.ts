@@ -1206,3 +1206,57 @@ export const supabaseStreakApi = {
     return supabaseStreakApi.get(coupleId);
   },
 };
+
+// ─── Important Dates alias (supabaseDatesApi) ───
+export const supabaseDatesApi = {
+  getAll: (coupleId: string) => supabaseCalendarApi.getEvents(coupleId),
+  create: (coupleId: string, partner: PartnerNumber, data: { title: string; date: string; type: string }) =>
+    supabaseCalendarApi.addEvent(coupleId, data.title, data.date, data.type as any, partner),
+  delete: (id: string, coupleId: string) => supabaseCalendarApi.deleteEvent(id, coupleId),
+};
+
+// ─── Love Notes – add create / getAll / delete ───
+export const supabaseLoveNoteExtApi = {
+  create: async (coupleId: string, fromPartner: PartnerNumber, content: string) => {
+    const toPartner: PartnerNumber = fromPartner === 1 ? 2 : 1;
+    return supabaseLoveNoteApi.send(coupleId, fromPartner, toPartner, content);
+  },
+  getAll: async (coupleId: string): Promise<ApiResponse<LoveNote[]>> => {
+    if (!supabase) throw new Error('Supabase not configured');
+    const { data, error } = await supabase
+      .from('love_notes')
+      .select('*')
+      .eq('couple_id', coupleId)
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return {
+      success: true,
+      data: (data || []).map((n: any) => ({
+        id: n.id,
+        coupleId: n.couple_id,
+        fromPartner: n.from_partner as PartnerNumber,
+        toPartner: n.to_partner as PartnerNumber,
+        message: n.message,
+        isRead: n.is_read || false,
+        createdAt: n.created_at,
+      })),
+    };
+  },
+  delete: async (id: string, coupleId: string): Promise<ApiResponse<void>> => {
+    if (!supabase) throw new Error('Supabase not configured');
+    const { error } = await supabase.from('love_notes').delete().eq('id', id).eq('couple_id', coupleId);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  },
+};
+
+// ─── Surprises – overloaded create for object param style ───
+export const supabaseSurpriseExtApi = {
+  getAll: (coupleId: string) => supabaseSurpriseApi.getAll(coupleId),
+  unlock: (id: string, coupleId: string) => supabaseSurpriseApi.unlock(id, coupleId),
+  create: (
+    coupleId: string,
+    partner: PartnerNumber,
+    data: { title: string; message: string; unlockAt: string }
+  ) => supabaseSurpriseApi.create(coupleId, partner, data.title, data.message, data.unlockAt),
+};
