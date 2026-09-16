@@ -8,5 +8,19 @@
     "build:server": "npm --prefix server run build",
     "build:client": "npm --prefix client run build",
     "build": "npm run build:server && npm run build:client"
-  }
+  },
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Najishanjum/NSHA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Najishanjum/NSHA/issues"
+  },
+  "homepage": "https://github.com/Najishanjum/NSHA#readme"
 }

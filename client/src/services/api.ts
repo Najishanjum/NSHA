@@ -23,7 +23,7 @@ import type {
   ApiResponse,
 } from '@/types';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '') || '/api';
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${url}`, {
@@ -38,8 +38,42 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 async function uploadFile(url: string, file: File | Blob, fields?: Record<string, string>): Promise<any> {
+  // Convert to base64 Data URL for universal compatibility (Vercel Serverless & Node)
+  let fileData = '';
+  try {
+    fileData = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  } catch {
+    // If FileReader fails, continue with form data
+  }
+
+  // 1. Try JSON payload with base64 Data URL (guaranteed to work seamlessly on serverless)
+  if (fileData) {
+    try {
+      const res = await fetch(`${API_BASE}${url}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...fields,
+          fileData,
+        }),
+      });
+      if (res.ok) {
+        return res.json();
+      }
+    } catch {
+      // Fallback to FormData
+    }
+  }
+
+  // 2. Fallback to multipart FormData
   const form = new FormData();
   form.append('file', file);
+  if (fileData) form.append('fileData', fileData);
   if (fields) {
     Object.entries(fields).forEach(([k, v]) => form.append(k, v));
   }

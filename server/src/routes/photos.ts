@@ -25,11 +25,11 @@ const upload = multer({ storage, limits: { fileSize: 25 * 1024 * 1024 } });
 export const photoRouter = Router();
 
 photoRouter.post('/', upload.single('file'), (req, res) => {
-  if (!req.file) {
+  const { coupleId, partner, caption, isChallenge, fileData } = req.body;
+  if (!req.file && !fileData) {
     return res.status(400).json({ success: false, error: 'File is required' });
   }
 
-  const { coupleId, partner, caption, isChallenge } = req.body;
   const partnerNum = Number(partner) as PartnerNumber;
   const today = db.getTodayString();
 
@@ -37,7 +37,7 @@ photoRouter.post('/', upload.single('file'), (req, res) => {
     id: `photo-${uuidv4()}`,
     coupleId,
     partner: partnerNum,
-    fileUrl: `/uploads/${req.file.filename}`,
+    fileUrl: req.file ? `/uploads/${req.file.filename}` : fileData,
     caption: caption || '',
     isFavorite: false,
     isChallenge: isChallenge === 'true' || isChallenge === true,

@@ -25,11 +25,11 @@ const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
 export const voiceRouter = Router();
 
 voiceRouter.post('/', upload.single('file'), (req, res) => {
-  if (!req.file) {
+  const { coupleId, partner, duration, type, isChallenge, fileData } = req.body;
+  if (!req.file && !fileData) {
     return res.status(400).json({ success: false, error: 'Audio/Video file is required' });
   }
 
-  const { coupleId, partner, duration, type, isChallenge } = req.body;
   const partnerNum = Number(partner) as PartnerNumber;
   const today = db.getTodayString();
 
@@ -37,7 +37,7 @@ voiceRouter.post('/', upload.single('file'), (req, res) => {
     id: `vc-${uuidv4()}`,
     coupleId,
     partner: partnerNum,
-    fileUrl: `/uploads/${req.file.filename}`,
+    fileUrl: req.file ? `/uploads/${req.file.filename}` : fileData,
     duration: Number(duration) || 0,
     type: type === 'video' ? 'video' : 'voice',
     isChallenge: isChallenge === 'true' || isChallenge === true,
