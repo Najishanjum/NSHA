@@ -26,6 +26,23 @@ function uuid() {
 
 /* ─── Storage Upload Helper ─── */
 
+async function compressImage(dataUrl: string, maxWidth = 1280, quality = 0.82): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl); // fallback: use original
+    img.src = dataUrl;
+  });
+}
+
 async function uploadFileToStorage(
   fileDataUrl: string,
   bucket: string,
@@ -36,21 +53,37 @@ async function uploadFileToStorage(
   // If it's already a URL (not a dataURL), return as-is
   if (!fileDataUrl.startsWith('data:')) return fileDataUrl;
 
-  // Convert dataURL to Blob
-  const res = await fetch(fileDataUrl);
-  const blob = await res.blob();
-  const ext = blob.type.split('/')[1]?.split(';')[0] || 'bin';
-  const filePath = `${path}.${ext}`;
+  try {
+    // Compress images before upload for faster transfers
+    let uploadData = fileDataUrl;
+    if (fileDataUrl.startsWith('data:image/')) {
+      uploadData = await compressImage(fileDataUrl);
+    }
 
-  const { error } = await supabase.storage.from(bucket).upload(filePath, blob, {
-    contentType: blob.type,
-    upsert: true,
-  });
+    // Convert dataURL to Blob
+    const res = await fetch(uploadData);
+    const blob = await res.blob();
+    const isImage = blob.type.startsWith('image/');
+    const ext = isImage ? 'jpg' : (blob.type.split('/')[1]?.split(';')[0] || 'bin');
+    const filePath = `${path}.${ext}`;
 
-  if (error) throw new Error(`Storage upload failed: ${error.message}`);
+    const { error } = await supabase.storage.from(bucket).upload(filePath, blob, {
+      contentType: blob.type,
+      upsert: true,
+    });
 
-  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(filePath);
-  return urlData.publicUrl;
+    if (error) {
+      console.warn(`Storage upload failed (${error.message}), using base64 fallback`);
+      // Fallback: return the original dataURL so the app still works
+      return fileDataUrl;
+    }
+
+    const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(filePath);
+    return urlData.publicUrl;
+  } catch (err) {
+    console.warn('Storage upload error, using base64 fallback:', err);
+    return fileDataUrl; // Fallback — app works, just stores base64 in DB
+  }
 }
 
 function generateCoupleCode(): string {

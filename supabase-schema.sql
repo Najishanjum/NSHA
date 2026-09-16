@@ -43,7 +43,7 @@ create table if not exists public.messages (
   type text default 'text',
   media_url text,
   reply_to_id text,
-  reactions jsonb default '[]'::jsonb,
+  reactions jsonb default '{}'::jsonb,
   created_at timestamp with time zone default now()
 );
 
@@ -145,7 +145,7 @@ create table if not exists public.important_dates (
   created_at timestamp with time zone default now()
 );
 
--- Enable Row Level Security (RLS) and allow public read/write for couple app
+-- Enable Row Level Security (RLS)
 alter table public.couples enable row level security;
 alter table public.challenges enable row level security;
 alter table public.messages enable row level security;
@@ -157,6 +157,19 @@ alter table public.bucket_list enable row level security;
 alter table public.love_notes enable row level security;
 alter table public.surprises enable row level security;
 alter table public.important_dates enable row level security;
+
+-- Drop existing policies if they exist (to avoid conflicts on re-run)
+drop policy if exists "Allow all access to couples" on public.couples;
+drop policy if exists "Allow all access to challenges" on public.challenges;
+drop policy if exists "Allow all access to messages" on public.messages;
+drop policy if exists "Allow all access to photos" on public.photos;
+drop policy if exists "Allow all access to voice_clips" on public.voice_clips;
+drop policy if exists "Allow all access to moods" on public.moods;
+drop policy if exists "Allow all access to questions" on public.questions;
+drop policy if exists "Allow all access to bucket_list" on public.bucket_list;
+drop policy if exists "Allow all access to love_notes" on public.love_notes;
+drop policy if exists "Allow all access to surprises" on public.surprises;
+drop policy if exists "Allow all access to important_dates" on public.important_dates;
 
 -- Create Open Policies (allows partners to share space data with couple code)
 create policy "Allow all access to couples" on public.couples for all using (true) with check (true);
@@ -170,3 +183,51 @@ create policy "Allow all access to bucket_list" on public.bucket_list for all us
 create policy "Allow all access to love_notes" on public.love_notes for all using (true) with check (true);
 create policy "Allow all access to surprises" on public.surprises for all using (true) with check (true);
 create policy "Allow all access to important_dates" on public.important_dates for all using (true) with check (true);
+
+-- =============================================
+-- STORAGE SETUP (Run this section separately
+-- if the above already ran successfully)
+-- =============================================
+
+-- Create storage buckets
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values
+  ('photos', 'photos', true, 10485760, array['image/jpeg','image/png','image/gif','image/webp','image/heic'])
+on conflict (id) do update set public = true, file_size_limit = 10485760;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values
+  ('voice-clips', 'voice-clips', true, 52428800, array['audio/webm','audio/mp4','audio/mpeg','audio/ogg','audio/wav','video/webm','video/mp4'])
+on conflict (id) do update set public = true, file_size_limit = 52428800;
+
+-- Storage Policies for photos bucket
+drop policy if exists "Allow public read photos" on storage.objects;
+drop policy if exists "Allow public upload photos" on storage.objects;
+drop policy if exists "Allow public delete photos" on storage.objects;
+drop policy if exists "Allow public read voice-clips" on storage.objects;
+drop policy if exists "Allow public upload voice-clips" on storage.objects;
+drop policy if exists "Allow public delete voice-clips" on storage.objects;
+
+create policy "Allow public read photos"
+  on storage.objects for select
+  using (bucket_id = 'photos');
+
+create policy "Allow public upload photos"
+  on storage.objects for insert
+  with check (bucket_id = 'photos');
+
+create policy "Allow public delete photos"
+  on storage.objects for delete
+  using (bucket_id = 'photos');
+
+create policy "Allow public read voice-clips"
+  on storage.objects for select
+  using (bucket_id = 'voice-clips');
+
+create policy "Allow public upload voice-clips"
+  on storage.objects for insert
+  with check (bucket_id = 'voice-clips');
+
+create policy "Allow public delete voice-clips"
+  on storage.objects for delete
+  using (bucket_id = 'voice-clips');
