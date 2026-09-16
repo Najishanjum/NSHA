@@ -1,0 +1,213 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 95%;
+    --card: 240 6% 10%;
+    --card-foreground: 0 0% 95%;
+    --primary: 346 77% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 280 40% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 6% 16%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 346 77% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 6% 18%;
+    --input: 240 6% 18%;
+    --ring: 346 77% 50%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+@layer components {
+  /* Glassmorphism card */
+  .glass {
+    background: linear-gradient(
+      135deg,
+      hsla(240, 6%, 12%, 0.8) 0%,
+      hsla(240, 6%, 8%, 0.6) 100%
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(240, 6%, 20%, 0.5);
+  }
+
+  .glass-hover:hover {
+    background: linear-gradient(
+      135deg,
+      hsla(240, 6%, 14%, 0.9) 0%,
+      hsla(240, 6%, 10%, 0.7) 100%
+    );
+    border-color: hsla(346, 77%, 50%, 0.3);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      135deg,
+      hsl(346, 77%, 60%) 0%,
+      hsl(280, 60%, 65%) 50%,
+      hsl(346, 77%, 55%) 100%
+    );
+  }
+
+  /* Gradient backgrounds */
+  .gradient-primary {
+    background: linear-gradient(
+      135deg,
+      hsl(346, 77%, 50%) 0%,
+      hsl(280, 60%, 50%) 100%
+    );
+  }
+
+  .gradient-warm {
+    background: linear-gradient(
+      135deg,
+      hsl(346, 77%, 50%) 0%,
+      hsl(25, 95%, 55%) 100%
+    );
+  }
+
+  .gradient-subtle {
+    background: linear-gradient(
+      135deg,
+      hsla(346, 77%, 50%, 0.1) 0%,
+      hsla(280, 60%, 50%, 0.05) 100%
+    );
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px hsla(346, 77%, 50%, 0.15),
+                0 0 60px hsla(346, 77%, 50%, 0.05);
+  }
+
+  .glow-primary-strong {
+    box-shadow: 0 0 30px hsla(346, 77%, 50%, 0.3),
+                0 0 80px hsla(346, 77%, 50%, 0.1);
+  }
+
+  /* Ambient background particles */
+  .ambient-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ambient-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      ellipse at 20% 50%,
+      hsla(346, 77%, 50%, 0.06) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 20%,
+      hsla(280, 60%, 50%, 0.04) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 50% 80%,
+      hsla(346, 77%, 50%, 0.03) 0%,
+      transparent 40%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Progress ring */
+  .progress-ring-circle {
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+
+  /* Fire animation for streak */
+  .fire-glow {
+    text-shadow: 0 0 10px hsla(25, 95%, 55%, 0.6),
+                 0 0 30px hsla(25, 95%, 55%, 0.3),
+                 0 0 50px hsla(346, 77%, 50%, 0.15);
+  }
+
+  /* Shimmer loading */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsla(240, 6%, 16%, 0) 0%,
+      hsla(240, 6%, 20%, 0.5) 50%,
+      hsla(240, 6%, 16%, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+
+  /* Heart beat */
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+  }
+
+  .heartbeat {
+    animation: heartbeat 1.5s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
