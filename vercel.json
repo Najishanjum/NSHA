@@ -1,6 +1,9 @@
 {
-  "buildCommand": "npm run build:client",
+  "version": 2,
+  "buildCommand": "cd client && npm install && npm run build:client",
   "outputDirectory": "client/dist",
+  "installCommand": "npm install",
+  "framework": null,
   "rewrites": [
     { "source": "/((?!api).*)", "destination": "/index.html" }
   ]
