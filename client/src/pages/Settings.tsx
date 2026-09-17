@@ -14,14 +14,18 @@ import {
   LogOut,
   Save,
   AlertTriangle,
+  Globe,
 } from 'lucide-react';
 import { useCoupleStore } from '@/stores';
 import { coupleApi, streakApi } from '@/services/api';
 import { formatDate } from '@/lib/utils';
+import { useLanguage } from '@/i18n';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export default function Settings() {
+  const { t } = useLanguage();
   const couple = useCoupleStore((s) => s.couple);
-  const partner = useCoupleStore((s) => s.partner);
+  const partner = useCoupleStore((s) => s.currentPartner || s.partner);
   const setCouple = useCoupleStore((s) => s.setCouple);
   const setPartner = useCoupleStore((s) => s.setPartner);
   const logout = useCoupleStore((s) => s.logout);
@@ -90,23 +94,38 @@ export default function Settings() {
         </span>
         <div>
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-200 via-rose-300 to-pink-300 bg-clip-text text-transparent">
-            Couple Space Settings
+            {t('settings.title')}
           </h1>
           <p className="text-xs md:text-sm text-slate-400">
-            Manage your shared profile, anniversary date, partner role, and streak perks
+            {t('settings.subtitle')}
           </p>
         </div>
+      </div>
+
+      {/* Language Experience Card */}
+      <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <Globe className="w-5 h-5 text-rose-400" />
+            {t('settings.languageSection')}
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">
+            {t('settings.languageDesc')}
+          </p>
+        </div>
+
+        <LanguageSwitcher size="md" />
       </div>
 
       {/* Couple Share Code Card */}
       <div className="p-6 rounded-3xl bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-purple-500/10 border border-rose-500/20 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-semibold text-rose-400 uppercase tracking-wider">
-            Your Private Couple Code
+            {t('settings.coupleCode')}
           </span>
           <p className="text-2xl font-mono font-bold text-white mt-1">{couple?.code}</p>
           <p className="text-xs text-slate-400 mt-1">
-            Share this code with your partner to let them join your private space.
+            {t('welcome.shareCodePrompt')}
           </p>
         </div>
 
@@ -115,7 +134,7 @@ export default function Settings() {
           className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold transition-all"
         >
           {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-          {copied ? 'Copied Code!' : 'Copy Code'}
+          {copied ? t('common.copied') : t('settings.copyCode')}
         </button>
       </div>
 
@@ -123,10 +142,10 @@ export default function Settings() {
       <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
         <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
           <Users className="w-5 h-5 text-rose-400" />
-          Active Partner Role
+          {t('settings.switchPartner')}
         </h3>
         <p className="text-xs text-slate-400 mb-4">
-          You are currently viewing and completing challenges as:
+          {t('settings.currentIdentity', { name: partner === 1 ? (couple?.partner1Name || 'Partner 1') : (couple?.partner2Name || 'Partner 2') })}
         </p>
 
         <div className="grid grid-cols-2 gap-3 max-w-md">
@@ -162,13 +181,13 @@ export default function Settings() {
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Snowflake className="w-5 h-5 text-sky-400" />
-              Streak Protection Freezes
+              {t('streak.streakFreeze')}
             </h3>
             <p className="text-xs text-slate-400 mt-1">
-              Missed a challenge? Use a freeze to protect your hard-earned streak without resetting it to zero.
+              {t('streak.dontBreakStreak')}
             </p>
             <p className="text-sm font-semibold text-sky-300 mt-2">
-              {couple?.streakFreezesRemaining ?? 2} Freezes Available This Month
+              {couple?.streakFreezesRemaining ?? 2} Freezes Available
             </p>
           </div>
 
@@ -178,7 +197,7 @@ export default function Settings() {
             className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/30 text-sky-300 font-semibold text-xs disabled:opacity-40 transition-all"
           >
             <Snowflake className="w-4 h-4" />
-            Use 1 Streak Freeze
+            {t('streak.useFreeze')}
           </button>
         </div>
 
@@ -191,12 +210,12 @@ export default function Settings() {
       <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
         <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
           <Heart className="w-5 h-5 text-rose-400" />
-          Edit Couple Details
+          {t('settings.partnerInfo')}
         </h3>
 
         <form onSubmit={handleSaveProfile} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Couple Nickname</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">{t('welcome.coupleNickname')}</label>
             <input
               type="text"
               value={nickname}
@@ -207,7 +226,7 @@ export default function Settings() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">Partner 1 Name</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">{t('welcome.yourName')}</label>
               <input
                 type="text"
                 value={partner1Name}
@@ -216,7 +235,7 @@ export default function Settings() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">Partner 2 Name</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">{t('welcome.partnerName')}</label>
               <input
                 type="text"
                 value={partner2Name}
@@ -228,7 +247,7 @@ export default function Settings() {
 
           <div>
             <label className="block text-xs font-semibold text-slate-400 mb-1">
-              Relationship / Anniversary Date
+              {t('welcome.relationshipDate')}
             </label>
             <input
               type="date"
@@ -241,7 +260,7 @@ export default function Settings() {
           <div className="flex items-center justify-between pt-3">
             {savedMessage ? (
               <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
-                <Check className="w-4 h-4" /> Changes saved successfully!
+                <Check className="w-4 h-4" /> {t('common.success')}
               </span>
             ) : (
               <div />
@@ -252,7 +271,7 @@ export default function Settings() {
               className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-semibold shadow-lg shadow-rose-500/20"
             >
               <Save className="w-4 h-4" />
-              Save Profile
+              {t('common.save')}
             </button>
           </div>
         </form>
@@ -265,7 +284,7 @@ export default function Settings() {
             <AlertTriangle className="w-4 h-4" /> Exit Couple Space
           </h4>
           <p className="text-xs text-slate-400 mt-1">
-            Log out from this session on this device. Your data is safely preserved on the server.
+            Log out from this session on this device. Your data is safely preserved.
           </p>
         </div>
 
@@ -280,3 +299,4 @@ export default function Settings() {
     </div>
   );
 }
+

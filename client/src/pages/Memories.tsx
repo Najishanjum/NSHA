@@ -25,8 +25,10 @@ import { useCoupleStore } from '@/stores';
 import { photoApi, voiceApi, memoryApi } from '@/services/api';
 import type { Photo, VoiceClip, DailyMemory } from '@/types';
 import { cn, formatDate, formatDuration } from '@/lib/utils';
+import { useLanguage } from '@/i18n';
 
 export default function Memories() {
+  const { t } = useLanguage();
   const couple = useCoupleStore((s) => s.couple);
   const partner = useCoupleStore((s) => s.currentPartner || s.partner);
 
@@ -164,10 +166,10 @@ export default function Memories() {
             </span>
             <div>
               <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
-                Memory Vault
+                {t('memories.title')}
               </h1>
               <p className="text-xs text-slate-400">
-                Click any photo to view full uncropped image and high-resolution memories
+                {t('memories.momentsWorthKeeping')}
               </p>
             </div>
           </div>
@@ -185,7 +187,7 @@ export default function Memories() {
             )}
           >
             <ImageIcon className="w-4 h-4" />
-            Photos ({photos.length})
+            {t('memories.photosTab')} ({photos.length})
           </button>
           <button
             onClick={() => setActiveTab('voice')}
@@ -197,7 +199,7 @@ export default function Memories() {
             )}
           >
             <Mic className="w-4 h-4" />
-            Voice Clips ({voiceClips.length})
+            {t('memories.clipsTab')} ({voiceClips.length})
           </button>
           <button
             onClick={() => setActiveTab('on-this-day')}
@@ -209,7 +211,7 @@ export default function Memories() {
             )}
           >
             <Clock className="w-4 h-4" />
-            On This Day
+            {t('memories.memoryOfDay')}
           </button>
         </div>
       </div>
@@ -228,7 +230,7 @@ export default function Memories() {
                 onClick={() => setFilterPartner('all')}
                 className={cn('px-2.5 py-1 rounded-lg transition-all', filterPartner === 'all' ? 'bg-rose-500 text-white font-medium' : 'text-slate-400')}
               >
-                All
+                {t('achievements.categoryAll')}
               </button>
               <button
                 onClick={() => setFilterPartner('1')}
@@ -256,7 +258,7 @@ export default function Memories() {
                 )}
               >
                 <Heart className={cn('w-3.5 h-3.5', filterFavorites && 'fill-rose-500 text-rose-500')} />
-                Favorites Only
+                {t('memories.favoritesTab')}
               </button>
             )}
           </div>
@@ -281,7 +283,7 @@ export default function Memories() {
         </div>
       )}
 
-      {/* Tab 1: Photos Grid - FULL VISIBLE & CLICKABLE */}
+      {/* Tab 1: Photos Grid */}
       {activeTab === 'photos' && (
         <>
           {filteredPhotos.length === 0 ? (
@@ -289,11 +291,9 @@ export default function Memories() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400">
                 <ImageIcon className="w-8 h-8 opacity-60" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-1">No Photos Found</h3>
+              <h3 className="text-lg font-semibold text-white mb-1">{t('empty.noPhotos')}</h3>
               <p className="text-sm text-slate-400 max-w-sm mx-auto">
-                {photos.length === 0
-                  ? 'Complete daily challenges to add photos here!'
-                  : 'No photos match your active filter criteria.'}
+                {t('memories.emptyStateSub')}
               </p>
             </div>
           ) : (
@@ -311,7 +311,6 @@ export default function Memories() {
                   }}
                   className="group relative aspect-square rounded-2xl overflow-hidden border border-white/10 bg-slate-950 cursor-pointer shadow-lg hover:border-rose-500/60 transition-all hover:shadow-xl hover:shadow-rose-500/10 flex items-center justify-center p-2"
                 >
-                  {/* Full visible image without awkward crop */}
                   <img
                     src={photo.fileUrl}
                     alt={photo.caption || 'Memory'}
@@ -319,7 +318,6 @@ export default function Memories() {
                     loading="lazy"
                   />
 
-                  {/* Click indicator badge */}
                   <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity p-2.5 flex flex-col justify-between rounded-2xl">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] px-2 py-0.5 rounded-md bg-black/80 text-white font-medium">
@@ -337,7 +335,7 @@ export default function Memories() {
 
                     <div className="flex items-center justify-center">
                       <span className="px-3 py-1 rounded-full bg-rose-600/90 text-white text-[11px] font-semibold flex items-center gap-1 shadow-lg">
-                        <Maximize2 className="w-3 h-3" /> View Full
+                        <Maximize2 className="w-3 h-3" /> View
                       </span>
                     </div>
 
@@ -346,7 +344,6 @@ export default function Memories() {
                     </div>
                   </div>
 
-                  {/* Favorite indicator when not hovered */}
                   {photo.isFavorite && (
                     <div className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-950/80 text-rose-500 group-hover:hidden">
                       <Heart className="w-3 h-3 fill-rose-500" />
@@ -397,7 +394,7 @@ export default function Memories() {
                     {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                   </button>
                   <p className="text-xs text-slate-300">
-                    {isPlaying ? 'Playing voice note...' : 'Listen to voice note'}
+                    {isPlaying ? t('voice.recording') : t('voice.play')}
                   </p>
                 </div>
               </div>
@@ -411,14 +408,14 @@ export default function Memories() {
         <div className="space-y-4">
           {onThisDayMemories.length === 0 ? (
             <div className="py-16 text-center text-slate-400 text-sm">
-              No past memories recorded for this day. Keep showing up every day!
+              {t('memories.emptyStateTitle')}
             </div>
           ) : (
             onThisDayMemories.map((mem) => (
               <div key={mem.date} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
                 <p className="text-sm font-bold text-rose-400 mb-2">{formatDate(mem.date)}</p>
                 <p className="text-xs text-slate-300">
-                  {mem.photos} Photos • {mem.voiceClips} Voice Clips • {mem.calls} Calls
+                  {mem.photos} {t('home.photos')} • {mem.voiceClips} {t('home.voiceClips')} • {mem.calls} {t('nav.calls')}
                 </p>
               </div>
             ))
@@ -426,7 +423,7 @@ export default function Memories() {
         </div>
       )}
 
-      {/* ULTRA-SLEEK FULL-SCREEN LIGHTBOX MODAL */}
+      {/* LIGHTBOX MODAL */}
       <AnimatePresence>
         {currentModalPhoto && (
           <motion.div
@@ -451,35 +448,18 @@ export default function Memories() {
                 <span className="text-xs text-slate-300 font-medium">
                   {formatDate(currentModalPhoto.date)}
                 </span>
-                {selectedPhotoIndex !== null && (
-                  <span className="text-xs text-slate-500">
-                    ({selectedPhotoIndex + 1} of {filteredPhotos.length})
-                  </span>
-                )}
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsZoomed(!isZoomed)}
                   className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all"
-                  title={isZoomed ? 'Zoom Out' : 'Zoom In'}
                 >
                   {isZoomed ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
                 </button>
-                <a
-                  href={currentModalPhoto.fileUrl}
-                  download={`memory-${currentModalPhoto.date}.jpg`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all"
-                  title="Download Image"
-                >
-                  <Download className="w-4 h-4" />
-                </a>
                 <button
                   onClick={() => handleDeletePhoto(currentModalPhoto.id)}
                   className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 transition-all"
-                  title="Delete Photo"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -489,7 +469,6 @@ export default function Memories() {
                     setIsZoomed(false);
                   }}
                   className="p-2 rounded-xl bg-white/10 hover:bg-rose-500 text-white transition-all ml-1"
-                  title="Close (ESC)"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -501,7 +480,6 @@ export default function Memories() {
               onClick={(e) => e.stopPropagation()}
               className="relative flex-1 w-full max-w-5xl flex items-center justify-center my-3 overflow-hidden"
             >
-              {/* Previous Button */}
               {selectedPhotoIndex !== null && selectedPhotoIndex > 0 && (
                 <button
                   onClick={() => {
@@ -509,13 +487,11 @@ export default function Memories() {
                     setIsZoomed(false);
                   }}
                   className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/70 hover:bg-rose-600 text-white backdrop-blur-md transition-all shadow-xl"
-                  title="Previous (Left Arrow)"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
               )}
 
-              {/* Next Button */}
               {selectedPhotoIndex !== null && selectedPhotoIndex < filteredPhotos.length - 1 && (
                 <button
                   onClick={() => {
@@ -523,13 +499,11 @@ export default function Memories() {
                     setIsZoomed(false);
                   }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/70 hover:bg-rose-600 text-white backdrop-blur-md transition-all shadow-xl"
-                  title="Next (Right Arrow)"
                 >
                   <ChevronRight className="w-6 h-6" />
                 </button>
               )}
 
-              {/* The Full Uncropped Image */}
               <div className="w-full h-full flex items-center justify-center">
                 <img
                   src={currentModalPhoto.fileUrl}
@@ -543,7 +517,6 @@ export default function Memories() {
               </div>
             </div>
 
-            {/* Bottom Caption Bar */}
             {currentModalPhoto.caption && (
               <div
                 onClick={(e) => e.stopPropagation()}
@@ -558,3 +531,4 @@ export default function Memories() {
     </div>
   );
 }
+

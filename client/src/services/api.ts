@@ -192,9 +192,9 @@ export const memoryApi = {
     const grouped: Record<string, DailyMemory> = {};
     for (const p of photos.data || []) {
       if (!grouped[p.date]) {
-        grouped[p.date] = { date: p.date, coupleId, photos: [], voiceClips: [], hasQuestion: false, totalPoints: 0 };
+        grouped[p.date] = { date: p.date, photos: 0, voiceClips: 0, calls: 0, messages: 0, challengeStatus: 'completed', streakDay: 1 };
       }
-      grouped[p.date].photos.push(p);
+      grouped[p.date].photos += 1;
     }
     return { success: true, data: Object.values(grouped).sort((a, b) => b.date.localeCompare(a.date)) };
   },
@@ -203,7 +203,7 @@ export const memoryApi = {
     const photos = await supabasePhotoApi.getAll(coupleId, { date });
     return {
       success: true,
-      data: { date, coupleId, photos: photos.data || [], voiceClips: [], hasQuestion: false, totalPoints: 0 },
+      data: { date, photos: photos.data?.length || 0, voiceClips: 0, calls: 0, messages: 0, challengeStatus: 'completed', streakDay: 1 },
     };
   },
 
@@ -214,8 +214,8 @@ export const memoryApi = {
     const onThisDay = (photos.data || []).filter((p) => p.date.slice(5) === mmdd);
     const grouped: Record<string, DailyMemory> = {};
     for (const p of onThisDay) {
-      if (!grouped[p.date]) grouped[p.date] = { date: p.date, coupleId, photos: [], voiceClips: [], hasQuestion: false, totalPoints: 0 };
-      grouped[p.date].photos.push(p);
+      if (!grouped[p.date]) grouped[p.date] = { date: p.date, photos: 0, voiceClips: 0, calls: 0, messages: 0, challengeStatus: 'completed', streakDay: 1 };
+      grouped[p.date].photos += 1;
     }
     return { success: true, data: Object.values(grouped) };
   },
@@ -229,9 +229,7 @@ export const calendarApi = {
     const prefix = `${year}-${String(month).padStart(2, '0')}`;
     const days: Record<string, CalendarDay> = {};
     for (const p of (photos.data || []).filter((ph) => ph.date.startsWith(prefix))) {
-      if (!days[p.date]) days[p.date] = { date: p.date, hasPhotos: false, hasVoice: false, hasQuestion: false, photoCount: 0, isComplete: false };
-      days[p.date].hasPhotos = true;
-      days[p.date].photoCount = (days[p.date].photoCount || 0) + 1;
+      if (!days[p.date]) days[p.date] = { date: p.date, status: 'completed' };
     }
     return { success: true, data: Object.values(days) };
   },
@@ -244,14 +242,11 @@ export const timelineApi = {
     const photos = await supabasePhotoApi.getAll(coupleId);
     const events: TimelineEvent[] = (photos.data || []).slice(0, 50).map((p) => ({
       id: p.id,
-      coupleId,
       date: p.date,
-      type: 'photo' as const,
+      type: 'photo-milestone' as const,
       title: p.caption || 'Photo shared',
-      description: '',
-      mediaUrl: p.fileUrl,
-      partner: p.partner,
-      createdAt: p.createdAt,
+      description: 'Shared a special moment together',
+      emoji: '📸',
     }));
     return { success: true, data: events };
   },

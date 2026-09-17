@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
   Target,
-  MessageCircle,
   Image,
   Mic,
   Phone,
@@ -20,40 +19,38 @@ import {
   Menu,
   X,
   Bell,
-  Flame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCoupleStore, useUIStore, useNotificationStore } from '@/stores';
+import { useLanguage } from '@/i18n';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
-const navItems = [
-  { path: '/', icon: Home, label: 'Home' },
-  { path: '/challenge', icon: Target, label: 'Challenge' },
-  { path: '/chat', icon: MessageCircle, label: 'Chat' },
-  { path: '/memories', icon: Image, label: 'Memories' },
-  { path: '/voice', icon: Mic, label: 'Voice & Video' },
-  { path: '/calls', icon: Phone, label: 'Calls' },
-  { path: '/calendar', icon: Calendar, label: 'Calendar' },
-  { path: '/achievements', icon: Trophy, label: 'Achievements' },
-  { path: '/statistics', icon: BarChart3, label: 'Statistics' },
-  { path: '/bucket-list', icon: ListChecks, label: 'Bucket List' },
-  { path: '/love-notes', icon: BookHeart, label: 'Love Notes' },
-  { path: '/surprises', icon: Gift, label: 'Surprises' },
-  { path: '/settings', icon: Settings, label: 'Settings' },
+const navItemConfig = [
+  { path: '/', icon: Home, key: 'nav.home' },
+  { path: '/challenge', icon: Target, key: 'nav.challenge' },
+  { path: '/memories', icon: Image, key: 'nav.memories' },
+  { path: '/voice', icon: Mic, key: 'nav.voice' },
+  { path: '/calls', icon: Phone, key: 'nav.calls' },
+  { path: '/calendar', icon: Calendar, key: 'nav.calendar' },
+  { path: '/achievements', icon: Trophy, key: 'nav.achievements' },
+  { path: '/statistics', icon: BarChart3, key: 'nav.statistics' },
+  { path: '/bucket-list', icon: ListChecks, key: 'nav.bucketList' },
+  { path: '/love-notes', icon: BookHeart, key: 'nav.loveNotes' },
+  { path: '/surprises', icon: Gift, key: 'nav.surprises' },
+  { path: '/settings', icon: Settings, key: 'nav.settings' },
 ];
 
-const mobileNavItems = [
-  { path: '/', icon: Home, label: 'Home' },
-  { path: '/challenge', icon: Target, label: 'Challenge' },
-  { path: '/chat', icon: MessageCircle, label: 'Chat' },
-  { path: '/memories', icon: Image, label: 'Memories' },
-  { path: '/voice', icon: Mic, label: 'Voice' },
-  { path: '/settings', icon: Heart, label: 'Profile' },
+const mobileNavItemConfig = [
+  { path: '/', icon: Home, key: 'nav.home' },
+  { path: '/challenge', icon: Target, key: 'nav.challenge' },
+  { path: '/memories', icon: Image, key: 'nav.memories' },
+  { path: '/voice', icon: Mic, key: 'nav.voice' },
+  { path: '/settings', icon: Heart, key: 'nav.profile' },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const location = useLocation();
-  const isChat = location.pathname === '/chat';
 
   return (
     <div className="h-screen w-screen bg-background ambient-bg flex overflow-hidden">
@@ -92,10 +89,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <Header />
 
         {/* Page Content with dedicated scroll container */}
-        <div className={cn(
-          'flex-1 relative z-10 min-h-0',
-          isChat ? 'overflow-hidden flex flex-col pb-16 lg:pb-0' : 'overflow-y-auto p-4 md:p-6 pb-24 lg:pb-10'
-        )}>
+        <div className="flex-1 relative z-10 min-h-0 overflow-y-auto p-4 md:p-6 pb-24 lg:pb-10">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -103,7 +97,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.15 }}
-              className={cn('min-w-0', isChat ? 'h-full flex flex-col' : '')}
+              className="min-w-0"
             >
               {children}
             </motion.div>
@@ -119,6 +113,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const couple = useCoupleStore((s) => s.couple);
+  const { t } = useLanguage();
 
   return (
     <>
@@ -144,7 +139,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       )}
 
       <nav className="flex-1 overflow-y-auto py-3 px-3 no-scrollbar">
-        {navItems.map((item) => (
+        {navItemConfig.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -159,7 +154,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             }
           >
             <item.icon className="w-[18px] h-[18px]" />
-            <span>{item.label}</span>
+            <span>{t(item.key)}</span>
           </NavLink>
         ))}
       </nav>
@@ -171,6 +166,7 @@ function Header() {
   const { setSidebarOpen } = useUIStore();
   const couple = useCoupleStore((s) => s.couple);
   const unreadCount = useNotificationStore((s) => s.unreadCount());
+  const { t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-30 glass border-b border-border/30 px-4 lg:px-6 py-3">
@@ -179,7 +175,7 @@ function Header() {
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 rounded-xl hover:bg-muted/50 transition-colors lg:hidden"
-            aria-label="Open menu"
+            aria-label={t('header.openMenu')}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -193,8 +189,11 @@ function Header() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <button className="relative p-2 rounded-xl hover:bg-muted/50 transition-colors" aria-label="Notifications">
+        <div className="flex items-center gap-3">
+          {/* Language Switcher */}
+          <LanguageSwitcher size="sm" />
+
+          <button className="relative p-2 rounded-xl hover:bg-muted/50 transition-colors" aria-label={t('header.notifications')}>
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary text-[10px] font-bold flex items-center justify-center text-primary-foreground">
@@ -209,10 +208,11 @@ function Header() {
 }
 
 function MobileNav() {
+  const { t } = useLanguage();
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-border/30 lg:hidden safe-area-bottom">
       <div className="flex items-center justify-around py-2 px-2">
-        {mobileNavItems.map((item) => (
+        {mobileNavItemConfig.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -226,7 +226,7 @@ function MobileNav() {
             {({ isActive }) => (
               <>
                 <item.icon className={cn('w-5 h-5', isActive && 'drop-shadow-[0_0_8px_hsl(346,77%,50%)]')} />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium">{t(item.key)}</span>
               </>
             )}
           </NavLink>
@@ -235,3 +235,4 @@ function MobileNav() {
     </nav>
   );
 }
+

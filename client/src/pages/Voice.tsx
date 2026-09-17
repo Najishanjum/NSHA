@@ -164,7 +164,7 @@ export default function Voice() {
       );
 
       if (res.data) {
-        setClips((prev) => [res.data, ...prev]);
+        setClips((prev) => [res.data!, ...prev]);
         setUploadSuccess(true);
         handleDiscardRecording();
         setTimeout(() => setUploadSuccess(false), 3000);

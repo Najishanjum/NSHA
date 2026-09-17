@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ArrowRight, Users, Sparkles } from 'lucide-react';
-import { cn, generateCoupleCode } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useCoupleStore } from '@/stores';
 import { coupleApi } from '@/services/api';
+import { useLanguage } from '@/i18n';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import type { PartnerNumber } from '@/types';
 
 type Step = 'welcome' | 'choice' | 'create' | 'join' | 'select-partner';
 
 export default function Welcome() {
+  const { t } = useLanguage();
   const [step, setStep] = useState<Step>('welcome');
   const [coupleCode, setCoupleCode] = useState('');
   const [partner1Name, setPartner1Name] = useState('');
@@ -24,7 +27,7 @@ export default function Welcome() {
 
   const handleCreate = async () => {
     if (!partner1Name.trim() || !partner2Name.trim()) {
-      setError('Both names are needed ❤️');
+      setError(t('welcome.bothNamesNeeded'));
       return;
     }
     setLoading(true);
@@ -42,7 +45,7 @@ export default function Welcome() {
         setStep('select-partner');
       }
     } catch (e: any) {
-      setError(e.message || 'Something went wrong ❤️');
+      setError(e.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -50,7 +53,7 @@ export default function Welcome() {
 
   const handleJoin = async () => {
     if (!coupleCode.trim()) {
-      setError('Enter your couple code ❤️');
+      setError(t('welcome.enterCodeNeeded'));
       return;
     }
     setLoading(true);
@@ -62,7 +65,7 @@ export default function Welcome() {
         setStep('select-partner');
       }
     } catch (e: any) {
-      setError(e.message || 'Couple not found. Check your code ❤️');
+      setError(e.message || t('welcome.codeNotFound'));
     } finally {
       setLoading(false);
     }
@@ -77,7 +80,11 @@ export default function Welcome() {
   const couple = useCoupleStore((s) => s.couple);
 
   return (
-    <div className="min-h-screen bg-background ambient-bg flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background ambient-bg flex flex-col items-center justify-center p-4 relative">
+      <div className="absolute top-6 right-6 z-20">
+        <LanguageSwitcher size="sm" />
+      </div>
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(6)].map((_, i) => (
           <motion.div
@@ -120,17 +127,17 @@ export default function Welcome() {
             </motion.div>
 
             <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4">
-              <span className="gradient-text">Welcome to</span>
+              <span className="gradient-text">{t('welcome.welcomeTo')}</span>
               <br />
-              <span className="text-foreground">Your Space</span>
+              <span className="text-foreground">{t('welcome.yourSpace')}</span>
             </h1>
 
             <p className="text-muted-foreground text-lg mb-3 max-w-md mx-auto">
-              Two people. One daily challenge. Every day becomes a memory.
+              {t('welcome.heroSubtitle')}
             </p>
 
             <p className="text-muted-foreground/60 text-sm mb-10">
-              Turn your conversations, photos, and little moments into a shared timeline you'll keep forever.
+              {t('welcome.heroDescription')}
             </p>
 
             <motion.button
@@ -139,7 +146,7 @@ export default function Welcome() {
               onClick={() => setStep('choice')}
               className="gradient-primary text-white font-semibold px-8 py-4 rounded-2xl text-lg glow-primary-strong inline-flex items-center gap-2 transition-shadow hover:shadow-lg hover:shadow-primary/20"
             >
-              Get Started
+              {t('welcome.getStarted')}
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </motion.div>
@@ -154,7 +161,7 @@ export default function Welcome() {
             className="w-full max-w-md relative z-10"
           >
             <h2 className="font-heading text-2xl font-bold text-center mb-8">
-              How would you like to start?
+              {t('welcome.howToStart')}
             </h2>
 
             <div className="space-y-4">
@@ -169,9 +176,9 @@ export default function Welcome() {
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="font-heading font-semibold text-lg">Create Our Space</p>
+                    <p className="font-heading font-semibold text-lg">{t('welcome.createSpaceTitle')}</p>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Start a new couple space and invite your partner
+                      {t('welcome.createSpaceDesc')}
                     </p>
                   </div>
                   <ArrowRight className="w-5 h-5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -189,9 +196,9 @@ export default function Welcome() {
                     <Users className="w-6 h-6 text-secondary" />
                   </div>
                   <div>
-                    <p className="font-heading font-semibold text-lg">Join Partner</p>
+                    <p className="font-heading font-semibold text-lg">{t('welcome.joinPartnerTitle')}</p>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Enter a couple code to join your partner's space
+                      {t('welcome.joinPartnerDesc')}
                     </p>
                   </div>
                   <ArrowRight className="w-5 h-5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -203,7 +210,7 @@ export default function Welcome() {
               onClick={() => setStep('welcome')}
               className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto block"
             >
-              ← Back
+              ← {t('common.back')}
             </button>
           </motion.div>
         )}
@@ -217,15 +224,15 @@ export default function Welcome() {
             className="w-full max-w-md relative z-10"
           >
             <h2 className="font-heading text-2xl font-bold text-center mb-2">
-              Create Your Space
+              {t('welcome.createSpaceHeader')}
             </h2>
             <p className="text-muted-foreground text-center text-sm mb-8">
-              Tell us about your couple ❤️
+              {t('welcome.createSpaceSub')}
             </p>
 
             <div className="glass rounded-2xl p-6 space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Your Name</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t('welcome.yourName')}</label>
                 <input
                   value={partner1Name}
                   onChange={(e) => setPartner1Name(e.target.value)}
@@ -235,7 +242,7 @@ export default function Welcome() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Partner's Name</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t('welcome.partnerName')}</label>
                 <input
                   value={partner2Name}
                   onChange={(e) => setPartner2Name(e.target.value)}
@@ -246,7 +253,7 @@ export default function Welcome() {
 
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  Couple Nickname <span className="text-muted-foreground/50">(optional)</span>
+                  {t('welcome.coupleNickname')} <span className="text-muted-foreground/50">{t('welcome.optional')}</span>
                 </label>
                 <input
                   value={coupleNickname}
@@ -258,7 +265,7 @@ export default function Welcome() {
 
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  Relationship Start Date <span className="text-muted-foreground/50">(optional)</span>
+                  {t('welcome.relationshipDate')} <span className="text-muted-foreground/50">{t('welcome.optional')}</span>
                 </label>
                 <input
                   type="date"
@@ -285,7 +292,7 @@ export default function Welcome() {
                 disabled={loading}
                 className="w-full gradient-primary text-white font-semibold py-3.5 rounded-xl text-base glow-primary disabled:opacity-60 transition-all"
               >
-                {loading ? 'Creating...' : 'Create Our Space ❤️'}
+                {loading ? t('welcome.creating') : t('welcome.createBtn')}
               </motion.button>
             </div>
 
@@ -293,7 +300,7 @@ export default function Welcome() {
               onClick={() => { setStep('choice'); setError(''); }}
               className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto block"
             >
-              ← Back
+              ← {t('common.back')}
             </button>
           </motion.div>
         )}
@@ -307,15 +314,15 @@ export default function Welcome() {
             className="w-full max-w-md relative z-10"
           >
             <h2 className="font-heading text-2xl font-bold text-center mb-2">
-              Join Your Partner
+              {t('welcome.joinSpaceHeader')}
             </h2>
             <p className="text-muted-foreground text-center text-sm mb-8">
-              Enter the couple code your partner shared with you
+              {t('welcome.joinSpaceSub')}
             </p>
 
             <div className="glass rounded-2xl p-6 space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Couple Code</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t('welcome.coupleCode')}</label>
                 <input
                   value={coupleCode}
                   onChange={(e) => setCoupleCode(e.target.value.toUpperCase())}
@@ -341,7 +348,7 @@ export default function Welcome() {
                 disabled={loading}
                 className="w-full gradient-primary text-white font-semibold py-3.5 rounded-xl text-base glow-primary disabled:opacity-60 transition-all"
               >
-                {loading ? 'Joining...' : 'Join Space ❤️'}
+                {loading ? t('welcome.joining') : t('welcome.joinBtn')}
               </motion.button>
             </div>
 
@@ -349,7 +356,7 @@ export default function Welcome() {
               onClick={() => { setStep('choice'); setError(''); }}
               className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto block"
             >
-              ← Back
+              ← {t('common.back')}
             </button>
           </motion.div>
         )}
@@ -368,16 +375,16 @@ export default function Welcome() {
                 animate={{ opacity: 1, y: 0 }}
                 className="glass rounded-2xl p-4 mb-6"
               >
-                <p className="text-sm text-muted-foreground mb-1">Share this code with your partner</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('welcome.shareCodePrompt')}</p>
                 <p className="font-mono text-2xl font-bold tracking-widest gradient-text">
                   {createdCode}
                 </p>
               </motion.div>
             )}
 
-            <h2 className="font-heading text-2xl font-bold mb-2">Who are you?</h2>
+            <h2 className="font-heading text-2xl font-bold mb-2">{t('welcome.whoAreYou')}</h2>
             <p className="text-muted-foreground text-sm mb-8">
-              Select your identity in this space
+              {t('welcome.selectIdentity')}
             </p>
 
             <div className="space-y-4">
@@ -393,7 +400,7 @@ export default function Welcome() {
                   </span>
                 </div>
                 <p className="font-heading font-semibold text-lg">{couple.partner1Name}</p>
-                <p className="text-sm text-muted-foreground">Partner 1</p>
+                <p className="text-sm text-muted-foreground">{t('welcome.partner1Label')}</p>
               </motion.button>
 
               <motion.button
@@ -408,7 +415,7 @@ export default function Welcome() {
                   </span>
                 </div>
                 <p className="font-heading font-semibold text-lg">{couple.partner2Name}</p>
-                <p className="text-sm text-muted-foreground">Partner 2</p>
+                <p className="text-sm text-muted-foreground">{t('welcome.partner2Label')}</p>
               </motion.button>
             </div>
           </motion.div>
@@ -417,3 +424,4 @@ export default function Welcome() {
     </div>
   );
 }
+

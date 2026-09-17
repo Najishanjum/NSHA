@@ -40,6 +40,7 @@ export interface DailyChallenge {
   streakDay: number;
   requiredPhotos: number;
   requiredVcs: number;
+  createdAt?: string;
 }
 
 export interface ChallengeProgress {

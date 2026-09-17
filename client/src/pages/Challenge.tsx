@@ -9,8 +9,10 @@ import { useCoupleStore, useUIStore, useNotificationStore } from '@/stores';
 import { challengeApi, photoApi, voiceApi, questionApi, moodApi } from '@/services/api';
 import { DAILY_PHOTO_PROMPTS, DAILY_QUESTIONS, MOOD_OPTIONS } from '@/types';
 import type { DailyChallenge, Photo, VoiceClip, MoodValue, PartnerNumber } from '@/types';
+import { useLanguage } from '@/i18n';
 
 export default function Challenge() {
+  const { t } = useLanguage();
   const couple = useCoupleStore((s) => s.couple);
   const currentPartner = useCoupleStore((s) => s.currentPartner);
   const myName = useCoupleStore((s) => s.getMyName());
@@ -117,10 +119,10 @@ export default function Challenge() {
       setPreviewUrls([]);
       setShowPhotoModal(false);
       setCaption('');
-      addNotification({ type: 'challenge', title: 'Photos uploaded ❤️', message: `${selectedFiles.length} photo(s) added to today's challenge` });
+      addNotification({ type: 'challenge', title: t('photo.uploadSuccess'), message: `${selectedFiles.length} photo(s) added!` });
       await loadData();
     } catch (e: any) {
-      addNotification({ type: 'challenge', title: 'Upload failed', message: e.message || 'Could not upload photos' });
+      addNotification({ type: 'challenge', title: t('common.error'), message: e.message || 'Could not upload photos' });
     } finally {
       setUploadingPhotos(false);
     }
@@ -149,7 +151,7 @@ export default function Challenge() {
       setRecordingTime(0);
       timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
     } catch (err) {
-      addNotification({ type: 'challenge', title: 'Microphone access needed', message: 'Please allow microphone access to record a voice clip' });
+      addNotification({ type: 'challenge', title: 'Microphone access needed', message: 'Please allow microphone access' });
     }
   };
 
@@ -175,10 +177,10 @@ export default function Challenge() {
       setAudioBlob(null);
       setRecordingTime(0);
       setShowVCModal(false);
-      addNotification({ type: 'challenge', title: 'Voice clip sent ❤️', message: 'Your daily VC is complete!' });
+      addNotification({ type: 'challenge', title: t('voice.uploadSuccess'), message: t('challenge.clipDone') });
       await loadData();
     } catch (e: any) {
-      addNotification({ type: 'challenge', title: 'Upload failed', message: e.message });
+      addNotification({ type: 'challenge', title: t('common.error'), message: e.message });
     }
   };
 
@@ -188,7 +190,7 @@ export default function Challenge() {
     try {
       await questionApi.answer(couple.id, currentPartner, questionAnswer.trim());
       setQuestionAnswer('');
-      addNotification({ type: 'challenge', title: 'Answer saved ❤️', message: 'Your response has been recorded' });
+      addNotification({ type: 'challenge', title: t('question.answerSent'), message: '' });
       await loadData();
     } catch {} finally {
       setSubmittingAnswer(false);
@@ -201,7 +203,7 @@ export default function Challenge() {
     setSubmittingMood(true);
     try {
       await moodApi.set(couple.id, currentPartner, mood);
-      addNotification({ type: 'challenge', title: 'Mood saved ❤️', message: '' });
+      addNotification({ type: 'challenge', title: t('mood.moodSet'), message: '' });
       await loadData();
     } catch {} finally {
       setSubmittingMood(false);
@@ -233,10 +235,10 @@ export default function Challenge() {
         {/* Header */}
         <div className="text-center">
           <h1 className="font-heading text-2xl md:text-3xl font-bold">
-            <span className="gradient-text">Today's Challenge</span>
+            <span className="gradient-text">{t('challenge.title')}</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+            {t('challenge.subtitle')}
           </p>
         </div>
 
@@ -249,8 +251,8 @@ export default function Challenge() {
               className="gradient-primary rounded-2xl p-6 text-center text-white glow-primary-strong"
             >
               <span className="text-4xl mb-2 block">🎉</span>
-              <h2 className="font-heading text-xl font-bold">Daily Challenge Complete!</h2>
-              <p className="text-white/80 text-sm mt-1">You both showed up today. ❤️</p>
+              <h2 className="font-heading text-xl font-bold">{t('challenge.challengeCompleted')}</h2>
+              <p className="text-white/80 text-sm mt-1">{t('challenge.youAreOnFire')}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -260,7 +262,7 @@ export default function Challenge() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Camera className="w-5 h-5 text-primary" />
-              <h2 className="font-heading font-semibold text-lg">Photos</h2>
+              <h2 className="font-heading font-semibold text-lg">{t('challenge.photosTitle')}</h2>
             </div>
             <span className="text-sm text-muted-foreground">
               {Math.min(myPhotoCount + partnerPhotoCount, requiredPhotos * 2)} / {requiredPhotos * 2}
@@ -273,7 +275,7 @@ export default function Challenge() {
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-muted-foreground">{myName}</span>
                 <span className={cn(myPhotoCount >= requiredPhotos ? 'text-green-400' : 'text-muted-foreground')}>
-                  {Math.min(myPhotoCount, requiredPhotos)}/{requiredPhotos} {myPhotoCount >= requiredPhotos ? '✅' : ''}
+                  {myPhotoCount >= requiredPhotos ? t('challenge.missionComplete') : t('challenge.photosCount', { count: myPhotoCount })} {myPhotoCount >= requiredPhotos ? '✅' : ''}
                 </span>
               </div>
               <div className="h-3 bg-muted rounded-full overflow-hidden">
@@ -288,7 +290,7 @@ export default function Challenge() {
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-muted-foreground">{partnerName}</span>
                 <span className={cn(partnerPhotoCount >= requiredPhotos ? 'text-green-400' : 'text-muted-foreground')}>
-                  {Math.min(partnerPhotoCount, requiredPhotos)}/{requiredPhotos} {partnerPhotoCount >= requiredPhotos ? '✅' : ''}
+                  {t('challenge.photosCount', { count: partnerPhotoCount })} {partnerPhotoCount >= requiredPhotos ? '✅' : ''}
                 </span>
               </div>
               <div className="h-3 bg-muted rounded-full overflow-hidden">
@@ -304,7 +306,7 @@ export default function Challenge() {
           {/* Photo prompts */}
           {photosRemaining > 0 && (
             <div className="mb-4 space-y-1.5">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Photo Prompts</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t('photo.selectPrompt')}</p>
               {todayPrompts.slice(myPhotoCount, requiredPhotos).map((prompt, i) => (
                 <p key={i} className="text-sm text-muted-foreground/80 pl-3 border-l-2 border-primary/30">
                   {prompt}
@@ -313,12 +315,12 @@ export default function Challenge() {
             </div>
           )}
 
-          {/* Uploaded photos - Click to view full image */}
+          {/* Uploaded photos */}
           {(myPhotos.length > 0 || partnerPhotosArr.length > 0) && (
             <div className="mb-4 space-y-3">
               {myPhotos.length > 0 && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1.5 font-medium">My Photos (click to view full):</p>
+                  <p className="text-xs text-muted-foreground mb-1.5 font-medium">{myName}:</p>
                   <div className="grid grid-cols-5 gap-2">
                     {myPhotos.map((photo) => (
                       <div
@@ -338,7 +340,7 @@ export default function Challenge() {
 
               {partnerPhotosArr.length > 0 && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1.5 font-medium">{partnerName}'s Photos:</p>
+                  <p className="text-xs text-muted-foreground mb-1.5 font-medium">{partnerName}:</p>
                   <div className="grid grid-cols-5 gap-2">
                     {partnerPhotosArr.map((photo) => (
                       <div
@@ -367,7 +369,7 @@ export default function Challenge() {
               className="w-full py-3 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/50 text-primary flex items-center justify-center gap-2 transition-colors"
             >
               <Plus className="w-5 h-5" />
-              <span className="font-medium">Add Photos ({photosRemaining} remaining)</span>
+              <span className="font-medium">{t('photo.sendPhoto')} ({t('challenge.photosRemaining', { count: photosRemaining })})</span>
             </motion.button>
           )}
 
@@ -387,7 +389,7 @@ export default function Challenge() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Mic className="w-5 h-5 text-primary" />
-              <h2 className="font-heading font-semibold text-lg">Daily Voice Clip</h2>
+              <h2 className="font-heading font-semibold text-lg">{t('challenge.vcTitle')}</h2>
             </div>
           </div>
 
@@ -396,7 +398,7 @@ export default function Challenge() {
             <div className={cn('p-3 rounded-xl border flex items-center justify-between', myVC ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-900/50 border-white/5')}>
               <div>
                 <p className="text-xs font-semibold text-white">{myName}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{myVC ? `✅ Sent (${formatTime(myVC.duration)})` : '⏳ Not sent yet'}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{myVC ? `✅ ${t('challenge.clipDone')} (${formatTime(myVC.duration)})` : `⏳ ${t('challenge.clipPending')}`}</p>
               </div>
               {myVC && (
                 <button
@@ -404,7 +406,7 @@ export default function Challenge() {
                   className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md hover:bg-emerald-600 transition-all"
                 >
                   {playingVC === myVC.id ? <Square className="w-3 h-3 fill-white" /> : <Play className="w-3 h-3 fill-white" />}
-                  {playingVC === myVC.id ? 'Stop' : 'Listen'}
+                  {playingVC === myVC.id ? t('voice.pause') : t('voice.play')}
                 </button>
               )}
             </div>
@@ -413,7 +415,7 @@ export default function Challenge() {
             <div className={cn('p-3 rounded-xl border flex items-center justify-between', partnerVC ? 'bg-pink-500/10 border-pink-500/30' : 'bg-slate-900/50 border-white/5')}>
               <div>
                 <p className="text-xs font-semibold text-white">{partnerName}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{partnerVC ? `✅ Sent (${formatTime(partnerVC.duration)})` : '⏳ Waiting for partner'}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{partnerVC ? `✅ ${t('challenge.clipDone')} (${formatTime(partnerVC.duration)})` : `⏳ ${t('voice.recordForPartner')}`}</p>
               </div>
               {partnerVC && (
                 <button
@@ -421,7 +423,7 @@ export default function Challenge() {
                   className="px-3 py-1.5 rounded-lg bg-pink-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md hover:bg-pink-600 transition-all"
                 >
                   {playingVC === partnerVC.id ? <Square className="w-3 h-3 fill-white" /> : <Play className="w-3 h-3 fill-white" />}
-                  {playingVC === partnerVC.id ? 'Stop' : 'Listen'}
+                  {playingVC === partnerVC.id ? t('voice.pause') : t('voice.play')}
                 </button>
               )}
             </div>
@@ -435,7 +437,7 @@ export default function Challenge() {
               className="w-full gradient-primary text-white font-semibold py-3 rounded-xl glow-primary flex items-center justify-center gap-2"
             >
               <Mic className="w-5 h-5" />
-              Record Voice Clip
+              {t('voice.sendClip')}
             </motion.button>
           )}
         </div>
@@ -443,8 +445,8 @@ export default function Challenge() {
         {/* ─── Daily Question ─── */}
         <div className="glass rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-3">
-            <MessageCircle className="w-5 h-5 text-primary" />
-            <h2 className="font-heading font-semibold text-lg">Daily Question</h2>
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="font-heading font-semibold text-lg">{t('question.title')}</h2>
           </div>
           <p className="text-foreground italic mb-4">"{todayQuestion}"</p>
 
@@ -453,7 +455,7 @@ export default function Challenge() {
               <textarea
                 value={questionAnswer}
                 onChange={(e) => setQuestionAnswer(e.target.value)}
-                placeholder="Your answer..."
+                placeholder={t('question.typeAnswer')}
                 rows={3}
                 className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
               />
@@ -464,18 +466,18 @@ export default function Challenge() {
                 disabled={!questionAnswer.trim() || submittingAnswer}
                 className="w-full gradient-primary text-white font-semibold py-3 rounded-xl glow-primary disabled:opacity-50"
               >
-                {submittingAnswer ? 'Saving...' : 'Submit Answer ❤️'}
+                {submittingAnswer ? t('common.loading') : t('question.submitAnswer')}
               </motion.button>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-green-400 text-sm">
               <Check className="w-4 h-4" />
-              <span>You've answered today's question</span>
+              <span>{t('question.answerSent')}</span>
             </div>
           )}
 
           {partnerQuestionDone && (
-            <p className="text-xs text-muted-foreground mt-2">{partnerName} has also answered ✓</p>
+            <p className="text-xs text-muted-foreground mt-2">{t('question.bothAnswered')}</p>
           )}
         </div>
 
@@ -483,10 +485,10 @@ export default function Challenge() {
         <div className="glass rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <Smile className="w-5 h-5 text-primary" />
-            <h2 className="font-heading font-semibold text-lg">How are you feeling?</h2>
+            <h2 className="font-heading font-semibold text-lg">{t('mood.title')}</h2>
           </div>
 
-          <div className="flex items-center justify-around">
+          <div className="flex items-center justify-around flex-wrap gap-2">
             {MOOD_OPTIONS.map(opt => (
               <motion.button
                 key={opt.value}
@@ -503,16 +505,12 @@ export default function Challenge() {
                 )}
               >
                 <span className="text-2xl">{opt.emoji}</span>
-                <span className="text-xs text-muted-foreground">{opt.label}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t(`mood.options.${opt.value === 'missing-you' ? 'missingYou' : opt.value === 'not-great' ? 'notGreat' : opt.value}`)}
+                </span>
               </motion.button>
             ))}
           </div>
-
-          {partnerMoodVal && (
-            <p className="text-xs text-muted-foreground mt-3 text-center">
-              {partnerName} is feeling {MOOD_OPTIONS.find(m => m.value === partnerMoodVal)?.emoji} {MOOD_OPTIONS.find(m => m.value === partnerMoodVal)?.label}
-            </p>
-          )}
         </div>
 
       </motion.div>
@@ -533,7 +531,7 @@ export default function Challenge() {
               className="glass rounded-t-2xl sm:rounded-2xl w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-heading font-semibold text-lg">Upload Photos</h3>
+                <h3 className="font-heading font-semibold text-lg">{t('photo.uploadPhoto')}</h3>
                 <button onClick={() => { setShowPhotoModal(false); previewUrls.forEach(u => URL.revokeObjectURL(u)); setSelectedFiles([]); setPreviewUrls([]); }}>
                   <X className="w-5 h-5" />
                 </button>
@@ -567,7 +565,7 @@ export default function Challenge() {
                 disabled={uploadingPhotos}
                 className="w-full gradient-primary text-white font-semibold py-3 rounded-xl glow-primary disabled:opacity-60"
               >
-                {uploadingPhotos ? 'Uploading...' : `Upload ${selectedFiles.length} Photo(s) ❤️`}
+                {uploadingPhotos ? t('common.loading') : t('photo.uploadSuccess')}
               </motion.button>
             </motion.div>
           </motion.div>
@@ -590,10 +588,9 @@ export default function Challenge() {
               className="glass rounded-2xl w-full max-w-sm p-8 text-center"
             >
               <h3 className="font-heading font-semibold text-lg mb-6">
-                {audioBlob ? 'Voice Clip Ready' : recording ? 'Recording...' : 'Record Voice Clip'}
+                {audioBlob ? t('voice.clipCompleted') : recording ? t('voice.recording') : t('voice.sendClip')}
               </h3>
 
-              {/* Recording visualizer */}
               <div className="mb-6">
                 {recording ? (
                   <motion.div
@@ -620,7 +617,7 @@ export default function Challenge() {
                 {!recording && !audioBlob && (
                   <>
                     <button onClick={cancelRecording} className="px-6 py-2.5 rounded-xl bg-muted text-muted-foreground font-medium">
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                     <motion.button
                       whileHover={{ scale: 1.03 }}
@@ -628,7 +625,7 @@ export default function Challenge() {
                       onClick={startRecording}
                       className="px-6 py-2.5 rounded-xl gradient-primary text-white font-semibold glow-primary"
                     >
-                      Start Recording
+                      {t('voice.recordVoice')}
                     </motion.button>
                   </>
                 )}
@@ -640,13 +637,13 @@ export default function Challenge() {
                     className="px-8 py-3 rounded-xl bg-red-500 text-white font-semibold flex items-center gap-2"
                   >
                     <Square className="w-4 h-4 fill-white" />
-                    Stop
+                    {t('voice.stopRecording')}
                   </motion.button>
                 )}
                 {audioBlob && (
                   <>
                     <button onClick={cancelRecording} className="px-6 py-2.5 rounded-xl bg-muted text-muted-foreground font-medium">
-                      Redo
+                      {t('common.cancel')}
                     </button>
                     <motion.button
                       whileHover={{ scale: 1.03 }}
@@ -654,7 +651,7 @@ export default function Challenge() {
                       onClick={handleUploadVC}
                       className="px-6 py-2.5 rounded-xl gradient-primary text-white font-semibold glow-primary"
                     >
-                      Send VC ❤️
+                      {t('voice.sendClip')} ❤️
                     </motion.button>
                   </>
                 )}
@@ -682,7 +679,7 @@ export default function Challenge() {
                 onClick={() => setActivePhotoModal(null)}
                 className="mt-3 px-6 py-2 rounded-xl bg-white/10 hover:bg-rose-500 text-white text-xs font-semibold transition-all"
               >
-                Close Full Image
+                {t('common.back')}
               </button>
             </div>
           </motion.div>
@@ -691,3 +688,4 @@ export default function Challenge() {
     </div>
   );
 }
+

@@ -6,19 +6,19 @@ import {
   Camera,
   Mic,
   Phone,
-  MessageCircle,
   Calendar,
   ChevronRight,
   Sparkles,
-  Clock,
   Image,
+  BookHeart,
 } from 'lucide-react';
 import { cn, getDaysBetween, getDateString } from '@/lib/utils';
 import { useCoupleStore } from '@/stores';
 import { useNavigate } from 'react-router-dom';
-import { challengeApi, streakApi, statsApi, questionApi } from '@/services/api';
+import { challengeApi, streakApi, statsApi } from '@/services/api';
 import type { DailyChallenge, StreakData, CoupleStatistics } from '@/types';
 import { DAILY_QUESTIONS } from '@/types';
+import { useLanguage } from '@/i18n';
 
 /* ─── Reusable progress ring ─── */
 function ProgressRing({ progress, size = 80, strokeWidth = 6, children }: {
@@ -56,6 +56,7 @@ function ProgressRing({ progress, size = 80, strokeWidth = 6, children }: {
 }
 
 export default function Home() {
+  const { t } = useLanguage();
   const couple = useCoupleStore((s) => s.couple);
   const currentPartner = useCoupleStore((s) => s.currentPartner);
   const partnerName = useCoupleStore((s) => s.getPartnerName());
@@ -136,11 +137,11 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-sm text-muted-foreground mb-4"
           >
             <Heart className="w-3.5 h-3.5 text-primary fill-primary" />
-            <span>Day {daysTogether} Together</span>
+            <span>{t('home.dayTogether', { days: daysTogether })}</span>
           </motion.div>
 
           <h1 className="font-heading text-3xl md:text-4xl font-bold mb-2">
-            <span className="gradient-text">Our Space</span>
+            <span className="gradient-text">{t('home.ourSpace')}</span>
           </h1>
 
           {streakDays > 0 && (
@@ -151,12 +152,12 @@ export default function Home() {
             >
               <span className="text-3xl fire-glow">🔥</span>
               <span className="font-heading text-2xl font-bold">{streakDays}</span>
-              <span className="text-muted-foreground text-sm">Day Streak</span>
+              <span className="text-muted-foreground text-sm">{t('home.dayStreak')}</span>
             </motion.div>
           )}
 
           <p className="text-muted-foreground/60 text-sm mt-2 italic">
-            "Keep showing up for each other."
+            {t('home.quote')}
           </p>
         </motion.div>
 
@@ -169,7 +170,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              <h2 className="font-heading font-semibold text-lg">Today's Challenge</h2>
+              <h2 className="font-heading font-semibold text-lg">{t('home.todayChallenge')}</h2>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </div>
@@ -187,7 +188,7 @@ export default function Home() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Camera className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Photos</span>
+                  <span className="text-sm font-medium">{t('home.photos')}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -225,7 +226,7 @@ export default function Home() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Mic className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Daily VC</span>
+                  <span className="text-sm font-medium">{t('home.dailyVc')}</span>
                 </div>
                 <div className="flex items-center gap-3 ml-auto">
                   <span className={cn('text-xs px-2 py-0.5 rounded-full', myVc ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground')}>
@@ -245,7 +246,7 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1 }}
               className="mt-4 py-3 rounded-xl gradient-subtle text-center"
             >
-              <span className="text-sm font-medium">🎉 Daily Challenge Complete!</span>
+              <span className="text-sm font-medium">{t('home.challengeCompleteHeader')}</span>
             </motion.div>
           )}
         </motion.div>
@@ -253,12 +254,12 @@ export default function Home() {
         {/* ─── Quick Stats Row ─── */}
         <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { icon: Image, label: 'Photos', value: stats?.totalPhotos || 0, color: 'text-pink-400' },
-            { icon: Mic, label: 'Voice Clips', value: stats?.totalVoiceClips || 0, color: 'text-purple-400' },
-            { icon: Phone, label: 'Call Hours', value: `${Math.floor((stats?.totalCallDuration || 0) / 3600)}h`, color: 'text-blue-400' },
-            { icon: MessageCircle, label: 'Messages', value: stats?.totalMessages || 0, color: 'text-green-400' },
-          ].map((stat) => (
-            <div key={stat.label} className="glass rounded-xl p-4 text-center">
+            { icon: Image, label: t('home.photos'), value: stats?.totalPhotos || 0, color: 'text-pink-400' },
+            { icon: Mic, label: t('home.voiceClips'), value: stats?.totalVoiceClips || 0, color: 'text-purple-400' },
+            { icon: Phone, label: t('home.callHours'), value: `${Math.floor((stats?.totalCallDuration || 0) / 3600)}h`, color: 'text-blue-400' },
+            { icon: Flame, label: t('home.streakTag'), value: streakDays, color: 'text-orange-400' },
+          ].map((stat, i) => (
+            <div key={i} className="glass rounded-xl p-4 text-center">
               <stat.icon className={cn('w-5 h-5 mx-auto mb-2', stat.color)} />
               <p className="font-heading text-xl font-bold">{stat.value}</p>
               <p className="text-xs text-muted-foreground">{stat.label}</p>
@@ -273,27 +274,26 @@ export default function Home() {
           onClick={() => navigate('/challenge')}
         >
           <div className="flex items-center gap-2 mb-3">
-            <MessageCircle className="w-5 h-5 text-primary" />
-            <h3 className="font-heading font-semibold">Today's Question</h3>
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h3 className="font-heading font-semibold">{t('home.todayQuestion')}</h3>
           </div>
           <p className="text-muted-foreground italic">"{todayQuestion}"</p>
           <div className="flex items-center gap-2 mt-3">
             <span className={cn('text-xs px-2 py-0.5 rounded-full', myQuestion ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground')}>
-              {myName} {myQuestion ? 'answered ✓' : 'not yet'}
+              {myName} {myQuestion ? t('home.answered') : t('home.notYet')}
             </span>
             <span className={cn('text-xs px-2 py-0.5 rounded-full', partnerQuestion ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground')}>
-              {partnerName} {partnerQuestion ? 'answered ✓' : 'not yet'}
+              {partnerName} {partnerQuestion ? t('home.answered') : t('home.notYet')}
             </span>
           </div>
         </motion.div>
 
         {/* ─── Quick Actions ─── */}
-        <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3">
           {[
-            { icon: Camera, label: 'Upload Photo', path: '/challenge', gradient: 'from-pink-500/20 to-rose-500/20' },
-            { icon: Mic, label: 'Record VC', path: '/challenge', gradient: 'from-purple-500/20 to-violet-500/20' },
-            { icon: MessageCircle, label: 'Chat', path: '/chat', gradient: 'from-blue-500/20 to-cyan-500/20' },
-            { icon: Phone, label: 'Call', path: '/calls', gradient: 'from-green-500/20 to-emerald-500/20' },
+            { icon: Camera, label: t('home.uploadPhotoAction'), path: '/challenge', gradient: 'from-pink-500/20 to-rose-500/20' },
+            { icon: Mic, label: t('home.recordVcAction'), path: '/challenge', gradient: 'from-purple-500/20 to-violet-500/20' },
+            { icon: BookHeart, label: t('nav.loveNotes'), path: '/love-notes', gradient: 'from-rose-500/20 to-pink-500/20' },
           ].map((action) => (
             <motion.button
               key={action.label}
@@ -313,13 +313,13 @@ export default function Home() {
           <div className="glass rounded-2xl p-6">
             <div className="flex items-center gap-2 mb-4">
               <Flame className="w-5 h-5 text-orange-400" />
-              <h3 className="font-heading font-semibold">Streak</h3>
+              <h3 className="font-heading font-semibold">{t('home.streakTag')}</h3>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-4xl font-heading font-bold fire-glow">{streakDays}</span>
               <div>
-                <p className="text-sm text-muted-foreground">Current Streak</p>
-                <p className="text-xs text-muted-foreground/60">Longest: {streak?.longestStreak || 0} days</p>
+                <p className="text-sm text-muted-foreground">{t('streak.currentStreak')}</p>
+                <p className="text-xs text-muted-foreground/60">{t('streak.longestStreak')}: {streak?.longestStreak || 0} days</p>
               </div>
             </div>
           </div>
@@ -330,16 +330,16 @@ export default function Home() {
           >
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="w-5 h-5 text-primary" />
-              <h3 className="font-heading font-semibold">This Month</h3>
+              <h3 className="font-heading font-semibold">{t('home.thisMonth')}</h3>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-4xl font-heading font-bold gradient-text">
                 {stats?.totalCompletedDays || 0}
               </span>
               <div>
-                <p className="text-sm text-muted-foreground">Days Completed</p>
+                <p className="text-sm text-muted-foreground">{t('home.daysCompleted')}</p>
                 <p className="text-xs text-muted-foreground/60">
-                  {daysTogether} days together
+                  {t('home.daysTogetherText', { days: daysTogether })}
                 </p>
               </div>
             </div>
@@ -350,3 +350,4 @@ export default function Home() {
     </div>
   );
 }
+

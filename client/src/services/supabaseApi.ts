@@ -236,8 +236,12 @@ export const supabaseChallengeApi = {
           partner2Vc: data.partner2_vc || false,
           partner1Question: data.partner1_question || false,
           partner2Question: data.partner2_question || false,
+          partner1Mood: data.partner1_mood || null,
+          partner2Mood: data.partner2_mood || null,
           status: data.status || 'pending',
-          streakAtDay: data.streak_at_day || 0,
+          streakDay: data.streak_at_day || data.streak_day || 0,
+          requiredPhotos: data.required_photos || 5,
+          requiredVcs: data.required_vcs || 1,
           createdAt: data.created_at,
         },
       };
@@ -253,8 +257,12 @@ export const supabaseChallengeApi = {
       partner2Vc: false,
       partner1Question: false,
       partner2Question: false,
+      partner1Mood: null,
+      partner2Mood: null,
       status: 'pending',
-      streakAtDay: 0,
+      streakDay: 0,
+      requiredPhotos: 5,
+      requiredVcs: 1,
       createdAt: new Date().toISOString(),
     };
 
@@ -298,8 +306,12 @@ export const supabaseChallengeApi = {
           partner2Vc: data.partner2_vc || false,
           partner1Question: data.partner1_question || false,
           partner2Question: data.partner2_question || false,
+          partner1Mood: data.partner1_mood || null,
+          partner2Mood: data.partner2_mood || null,
           status: data.status || 'pending',
-          streakAtDay: data.streak_at_day || 0,
+          streakDay: data.streak_at_day || data.streak_day || 0,
+          requiredPhotos: data.required_photos || 5,
+          requiredVcs: data.required_vcs || 1,
           createdAt: data.created_at,
         },
       };
@@ -328,8 +340,12 @@ export const supabaseChallengeApi = {
       partner2Vc: d.partner2_vc || false,
       partner1Question: d.partner1_question || false,
       partner2Question: d.partner2_question || false,
+      partner1Mood: d.partner1_mood || null,
+      partner2Mood: d.partner2_mood || null,
       status: d.status || 'pending',
-      streakAtDay: d.streak_at_day || 0,
+      streakDay: d.streak_at_day || d.streak_day || 0,
+      requiredPhotos: d.required_photos || 5,
+      requiredVcs: d.required_vcs || 1,
       createdAt: d.created_at,
     }));
     return { success: true, data: challenges };
@@ -854,12 +870,10 @@ export const supabaseBucketListApi = {
       id: b.id,
       coupleId: b.couple_id,
       title: b.title,
-      description: b.description,
-      category: b.category || 'adventure',
-      targetDate: b.target_date,
-      completed: b.completed || false,
+      category: (b.category as any) || 'experiences',
+      isCompleted: b.completed || b.is_completed || false,
       completedAt: b.completed_at,
-      createdBy: b.created_by as PartnerNumber,
+      addedBy: (b.created_by || b.added_by || 1) as PartnerNumber,
       createdAt: b.created_at,
     }));
     return { success: true, data: items };
@@ -878,11 +892,9 @@ export const supabaseBucketListApi = {
       id: `bl-${uuid()}`,
       coupleId,
       title,
-      description,
-      category: category || 'adventure',
-      targetDate,
-      completed: false,
-      createdBy,
+      category: category || 'experiences',
+      isCompleted: false,
+      addedBy: createdBy,
       createdAt: new Date().toISOString(),
     };
 
@@ -890,11 +902,9 @@ export const supabaseBucketListApi = {
       id: item.id,
       couple_id: item.coupleId,
       title: item.title,
-      description: item.description,
       category: item.category,
-      target_date: item.targetDate,
-      completed: item.completed,
-      created_by: item.createdBy,
+      completed: false,
+      created_by: item.addedBy,
       created_at: item.createdAt,
     });
 
@@ -925,12 +935,10 @@ export const supabaseBucketListApi = {
         id: updated.id,
         coupleId: updated.couple_id,
         title: updated.title,
-        description: updated.description,
-        category: updated.category,
-        targetDate: updated.target_date,
-        completed: updated.completed,
+        category: updated.category || 'experiences',
+        isCompleted: updated.completed || false,
         completedAt: updated.completed_at,
-        createdBy: updated.created_by,
+        addedBy: (updated.created_by || 1) as PartnerNumber,
         createdAt: updated.created_at,
       },
     };
@@ -952,20 +960,19 @@ export const supabaseLoveNoteApi = {
     const note: LoveNote = {
       id: `ln-${uuid()}`,
       coupleId,
-      fromPartner,
-      toPartner,
-      message,
-      isRead: false,
+      partner: fromPartner,
+      content: message,
+      isFavorite: false,
       createdAt: new Date().toISOString(),
     };
 
     const { error } = await supabase.from('love_notes').insert({
       id: note.id,
       couple_id: note.coupleId,
-      from_partner: note.fromPartner,
-      to_partner: note.toPartner,
-      message: note.message,
-      is_read: note.isRead,
+      from_partner: fromPartner,
+      to_partner: toPartner,
+      message,
+      is_read: false,
       created_at: note.createdAt,
     });
 
@@ -979,17 +986,15 @@ export const supabaseLoveNoteApi = {
       .from('love_notes')
       .select('*')
       .eq('couple_id', coupleId)
-      .eq('to_partner', partner)
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
     const notes: LoveNote[] = (data || []).map((n) => ({
       id: n.id,
       coupleId: n.couple_id,
-      fromPartner: n.from_partner as PartnerNumber,
-      toPartner: n.to_partner as PartnerNumber,
-      message: n.message,
-      isRead: n.is_read || false,
+      partner: (n.from_partner || n.partner || 1) as PartnerNumber,
+      content: n.message || n.content || '',
+      isFavorite: n.is_favorite || false,
       createdAt: n.created_at,
     }));
     return { success: true, data: notes };
@@ -1158,19 +1163,16 @@ export const supabaseStatsApi = {
     return {
       success: true,
       data: {
-        totalDays: (challenges || []).length || 1,
-        completedChallenges,
-        totalPhotos,
-        totalVoiceClips,
-        totalCallMinutes: 0,
-        totalMessages,
         currentStreak: completedChallenges,
         longestStreak: completedChallenges,
-        streakHistory: [],
-        partner1Contribution: 50,
-        partner2Contribution: 50,
-        activityByHour: {},
-        challengesByCategory: {},
+        totalCompletedDays: completedChallenges,
+        totalPhotos,
+        totalVoiceClips,
+        totalCalls: 0,
+        totalCallDuration: 0,
+        totalMessages,
+        favoritePhotos: 0,
+        daysTogether: (challenges || []).length || 1,
       },
     };
   },
@@ -1188,9 +1190,9 @@ export const supabaseStreakApi = {
       data: {
         currentStreak: streak,
         longestStreak: streak,
-        freezesRemaining: couple?.streak_freezes_remaining ?? 2,
-        isAtRisk: false,
-        streakHistory: [],
+        totalCompletedDays: streak,
+        streakFreezesRemaining: couple?.streak_freezes_remaining ?? 2,
+        streakFreezeUsedToday: false,
       },
     };
   },
@@ -1234,10 +1236,9 @@ export const supabaseLoveNoteExtApi = {
       data: (data || []).map((n: any) => ({
         id: n.id,
         coupleId: n.couple_id,
-        fromPartner: n.from_partner as PartnerNumber,
-        toPartner: n.to_partner as PartnerNumber,
-        message: n.message,
-        isRead: n.is_read || false,
+        partner: (n.from_partner || n.partner || 1) as PartnerNumber,
+        content: n.message || n.content || '',
+        isFavorite: n.is_favorite || false,
         createdAt: n.created_at,
       })),
     };

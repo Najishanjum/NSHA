@@ -15,10 +15,12 @@ import { useCoupleStore } from '@/stores';
 import { loveNoteApi } from '@/services/api';
 import type { LoveNote } from '@/types';
 import { cn, formatDate } from '@/lib/utils';
+import { useLanguage } from '@/i18n';
 
 export default function LoveNotes() {
+  const { t } = useLanguage();
   const couple = useCoupleStore((s) => s.couple);
-  const partner = useCoupleStore((s) => s.partner);
+  const partner = useCoupleStore((s) => s.currentPartner || s.partner);
 
   const [notes, setNotes] = useState<LoveNote[]>([]);
   const [isWriting, setIsWriting] = useState(false);
@@ -86,10 +88,10 @@ export default function LoveNotes() {
           </span>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
-              Love Notes Vault
+              {t('loveNotes.title')}
             </h1>
             <p className="text-xs md:text-sm text-slate-400">
-              Leave heartfelt, handwritten-style notes and loving surprises
+              {t('loveNotes.subtitle')}
             </p>
           </div>
         </div>
@@ -99,7 +101,7 @@ export default function LoveNotes() {
           className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <Plus className="w-4 h-4" />
-          Leave a Note
+          {t('loveNotes.leaveSpecial')}
         </button>
       </div>
 
@@ -115,12 +117,8 @@ export default function LoveNotes() {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Heart className="w-4 h-4 text-rose-400 fill-rose-500" />
-                Write to{' '}
-                <span className="text-rose-400">
-                  {partner === 1 ? couple?.partner2Name : couple?.partner1Name}
-                </span>
+                {t('loveNotes.subtitle')}
               </h3>
-              <span className="text-xs text-slate-400">Private & Sealed ❤️</span>
             </div>
 
             {/* Quick Inspiration Prompts */}
@@ -143,7 +141,7 @@ export default function LoveNotes() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={4}
-                placeholder="Pour your heart out..."
+                placeholder={t('loveNotes.writePlaceholder')}
                 className="w-full p-4 rounded-2xl bg-slate-900/90 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500 resize-none font-serif leading-relaxed"
                 autoFocus
               />
@@ -154,7 +152,7 @@ export default function LoveNotes() {
                   onClick={() => setIsWriting(false)}
                   className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -162,7 +160,7 @@ export default function LoveNotes() {
                   className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-semibold disabled:opacity-50 transition-all shadow-lg shadow-rose-500/20"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  Seal with Love
+                  {t('loveNotes.sendNote')}
                 </button>
               </div>
             </form>
@@ -176,10 +174,7 @@ export default function LoveNotes() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400">
             <Heart className="w-8 h-8 opacity-60 fill-rose-500/20" />
           </div>
-          <h3 className="text-lg font-semibold text-white mb-1">No Love Notes Yet</h3>
-          <p className="text-sm text-slate-400 max-w-sm mx-auto">
-            Surprise your partner with a sweet message. It will stay pinned here forever!
-          </p>
+          <h3 className="text-lg font-semibold text-white mb-1">{t('loveNotes.emptyState')}</h3>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
@@ -187,7 +182,6 @@ export default function LoveNotes() {
             const authorName = note.partner === 1 ? couple?.partner1Name : couple?.partner2Name;
             const isFromMe = note.partner === partner;
 
-            // Rotating tilt for physical paper feel
             const rotations = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0'];
             const rotClass = rotations[idx % rotations.length];
 
@@ -205,7 +199,6 @@ export default function LoveNotes() {
                     : 'bg-gradient-to-br from-purple-950/40 via-slate-900/90 to-indigo-950/30 border-purple-500/25'
                 )}
               >
-                {/* Pin ornament */}
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-gradient-to-r from-rose-400 to-amber-300 shadow-md" />
 
                 <div className="mt-3 mb-6">
@@ -224,7 +217,7 @@ export default function LoveNotes() {
                     <button
                       onClick={() => handleDelete(note.id)}
                       className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 transition-opacity p-1"
-                      title="Delete"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -238,3 +231,4 @@ export default function LoveNotes() {
     </div>
   );
 }
+
