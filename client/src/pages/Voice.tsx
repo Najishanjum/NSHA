@@ -7,11 +7,7 @@ import {
   Pause,
   Trash2,
   Download,
-  Sparkles,
-  Heart,
   Clock,
-  Volume2,
-  RefreshCw,
   Send,
   CheckCircle,
 } from 'lucide-react';
@@ -24,7 +20,6 @@ export default function Voice() {
   const couple = useCoupleStore((s) => s.couple);
   const partner = useCoupleStore((s) => s.currentPartner || s.partner);
   const partnerName = useCoupleStore((s) => s.getPartnerName());
-  const myName = useCoupleStore((s) => s.getMyName());
 
   const [clips, setClips] = useState<VoiceClip[]>([]);
   const [loading, setLoading] = useState(true);
@@ -241,54 +236,53 @@ export default function Voice() {
   const myClipsCount = clips.filter((c) => c.partner === partner).length;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto w-full">
+    <div className="py-6 lg:py-10 space-y-8 max-w-5xl mx-auto w-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="p-2.5 rounded-2xl bg-gradient-to-tr from-rose-500/20 to-pink-500/20 text-rose-400 border border-rose-500/30">
-            <Mic className="w-6 h-6" />
-          </span>
+          <div className="nsha-icon-box nsha-icon-box-purple">
+            <Mic className="w-5 h-5 text-white" />
+          </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-rose-400 via-pink-300 to-amber-300 bg-clip-text text-transparent">
-              Voice & Audio Notes
-            </h1>
-            <p className="text-xs text-slate-400">
+            <p className="nsha-page-eyebrow">NSHA / AUDIO VAULT</p>
+            <h1 className="nsha-page-title">Voice & Audio Notes</h1>
+            <p className="nsha-page-subtitle">
               Record voice notes for each other and listen to your partner's voice anytime ❤️
             </p>
           </div>
         </div>
 
         {uploadSuccess && (
-          <div className="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 animate-bounce">
-            <CheckCircle className="w-4 h-4" /> Voice Note Saved & Sent!
+          <div className="px-4 py-2 rounded-xl bg-nsha-green text-nsha-black border-2 border-nsha-black text-xs font-heading font-bold flex items-center gap-1.5 shadow-nsha-sm animate-bounce">
+            <CheckCircle className="w-4 h-4 stroke-[2.5]" /> Voice Note Saved & Sent!
           </div>
         )}
       </div>
 
       {/* RECORDING CONSOLE */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900/90 via-slate-950 to-rose-950/20 border border-rose-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-        <div className="flex flex-col items-center justify-center text-center py-4">
+      <div className="nsha-card p-6 sm:p-8 bg-nsha-surface relative overflow-hidden">
+        <div className="flex flex-col items-center justify-center text-center py-2">
           {/* Microphone Icon / Status */}
           <div className="relative mb-5">
             <div
               className={cn(
-                'w-20 h-20 rounded-full flex items-center justify-center text-white transition-all shadow-xl',
+                'w-20 h-20 rounded-2xl border-3 border-nsha-black flex items-center justify-center text-white transition-all shadow-nsha-sm',
                 isRecording
-                  ? 'bg-rose-600 shadow-rose-600/50 scale-110'
+                  ? 'bg-nsha-pink shadow-nsha scale-110'
                   : recordedBlob
-                  ? 'bg-emerald-600 shadow-emerald-600/40'
-                  : 'bg-gradient-to-tr from-rose-500 to-pink-600 shadow-rose-500/30 hover:scale-105'
+                  ? 'bg-nsha-green text-nsha-black'
+                  : 'bg-nsha-yellow text-nsha-black hover:scale-105'
               )}
             >
-              <Mic className="w-9 h-9" />
+              <Mic className="w-8 h-8 stroke-[2.5]" />
             </div>
 
-            {/* Pulsing rings while recording */}
+            {/* Pulsing indicator while recording */}
             {isRecording && (
               <motion.div
-                animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
+                animate={{ scale: [1, 1.25, 1], opacity: [0.8, 0, 0.8] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
-                className="absolute -inset-3 rounded-full border-2 border-rose-500 pointer-events-none"
+                className="absolute -inset-2 rounded-2xl border-2 border-nsha-pink pointer-events-none"
               />
             )}
           </div>
@@ -296,21 +290,21 @@ export default function Voice() {
           {/* Recording Timer / Status Text */}
           {isRecording ? (
             <div className="space-y-2 mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-rose-400 animate-pulse">
+              <span className="text-xs font-heading font-bold uppercase tracking-wider text-nsha-pink animate-pulse">
                 Recording your voice for {partnerName}...
               </span>
-              <p className="text-3xl font-mono font-bold text-white tracking-wider">
+              <p className="text-3xl font-mono font-bold text-nsha-black tracking-wider bg-white px-5 py-1 rounded-xl border-2 border-nsha-black inline-block shadow-sm">
                 {formatDuration(recordSeconds)}
               </p>
 
               {/* Dynamic waveform simulation */}
-              <div className="flex items-center gap-1 h-8 max-w-xs mx-auto pt-2">
+              <div className="flex items-center gap-1.5 h-8 max-w-xs mx-auto pt-3">
                 {[40, 70, 90, 50, 100, 60, 80, 45, 95, 75, 55, 85, 40].map((h, i) => (
                   <motion.div
                     key={i}
                     animate={{ height: [`${h * 0.3}%`, `${h}%`, `${h * 0.4}%`] }}
                     transition={{ duration: 0.5 + (i % 4) * 0.15, repeat: Infinity }}
-                    className="flex-1 bg-gradient-to-t from-rose-500 to-pink-400 rounded-full"
+                    className="flex-1 bg-nsha-black rounded-full"
                   />
                 ))}
               </div>
@@ -318,27 +312,27 @@ export default function Voice() {
           ) : recordedBlob ? (
             /* Review & Listen Before Sending */
             <div className="space-y-4 mb-6 max-w-md w-full">
-              <span className="text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5" /> Recording Complete ({formatDuration(recordSeconds)})
+              <span className="text-xs font-heading font-bold text-nsha-black flex items-center justify-center gap-1 bg-[#E6F9EC] border-2 border-nsha-black py-1 px-3 rounded-lg shadow-sm">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" /> Recording Complete ({formatDuration(recordSeconds)})
               </span>
-              <p className="text-xs text-slate-400">Listen to your note before saving it for {partnerName}:</p>
+              <p className="text-xs text-nsha-text-secondary">Listen to your note before saving it for {partnerName}:</p>
 
-              <div className="flex items-center justify-center gap-3 p-3 bg-slate-900 rounded-2xl border border-white/10">
+              <div className="flex items-center justify-center gap-3 p-3 bg-white rounded-xl border-2 border-nsha-black shadow-nsha-sm">
                 <button
                   onClick={togglePreviewPlay}
-                  className="w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-md hover:bg-rose-600 transition-all"
+                  className="w-10 h-10 rounded-xl bg-nsha-yellow border-2 border-nsha-black text-nsha-black flex items-center justify-center shadow-sm hover:bg-nsha-pink hover:text-white transition-all"
                 >
-                  {isPreviewPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                  {isPreviewPlaying ? <Pause className="w-4 h-4 stroke-[2.5]" /> : <Play className="w-4 h-4 ml-0.5 stroke-[2.5]" />}
                 </button>
-                <span className="text-xs font-mono text-slate-300">
+                <span className="text-xs font-mono font-bold text-nsha-black">
                   {isPreviewPlaying ? 'Playing preview...' : 'Tap to test audio playback'}
                 </span>
               </div>
             </div>
           ) : (
             <div className="mb-6 space-y-1">
-              <h3 className="text-lg font-bold text-white">Record a Voice Note</h3>
-              <p className="text-xs text-slate-400 max-w-md">
+              <h3 className="text-xl font-heading font-bold text-nsha-black">Record a Voice Note</h3>
+              <p className="text-xs text-nsha-text-secondary max-w-md">
                 Leave a sweet message, good morning wish, or romantic reminder that {partnerName} can listen to anytime.
               </p>
             </div>
@@ -349,7 +343,7 @@ export default function Voice() {
             {isRecording ? (
               <button
                 onClick={handleStopRecording}
-                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm shadow-xl shadow-rose-600/30 transition-all"
+                className="nsha-btn nsha-btn-pink"
               >
                 <Square className="w-4 h-4 fill-white" />
                 Done & Review
@@ -359,25 +353,25 @@ export default function Voice() {
                 <button
                   onClick={handleDiscardRecording}
                   disabled={isUploading}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/10 text-xs font-medium transition-all"
+                  className="nsha-btn nsha-btn-secondary nsha-btn-sm"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Discard & Re-record
+                  Discard
                 </button>
 
                 <button
                   onClick={handleSaveAndSend}
                   disabled={isUploading}
-                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-semibold text-sm shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50"
+                  className="nsha-btn nsha-btn-primary"
                 >
                   <Send className="w-4 h-4" />
-                  {isUploading ? 'Saving Voice Note...' : `Save & Share with ${partnerName}`}
+                  {isUploading ? 'Saving...' : `Save & Share with ${partnerName}`}
                 </button>
               </>
             ) : (
               <button
                 onClick={handleStartRecording}
-                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold text-sm shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="nsha-btn nsha-btn-primary"
               >
                 <Mic className="w-4 h-4" />
                 Start Recording
@@ -388,57 +382,57 @@ export default function Voice() {
       </div>
 
       {/* FILTER TABS */}
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveTab('all')}
-            className={cn(
-              'px-4 py-2 rounded-xl text-xs font-semibold transition-all',
-              activeTab === 'all'
-                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                : 'text-slate-400 hover:text-white'
-            )}
-          >
-            All Voice Notes ({clips.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('partner')}
-            className={cn(
-              'px-4 py-2 rounded-xl text-xs font-semibold transition-all',
-              activeTab === 'partner'
-                ? 'bg-pink-500/20 text-pink-300 border border-pink-500/40'
-                : 'text-slate-400 hover:text-white'
-            )}
-          >
-            🎙️ {partnerName}'s Voice ({partnerClipsCount})
-          </button>
-          <button
-            onClick={() => setActiveTab('mine')}
-            className={cn(
-              'px-4 py-2 rounded-xl text-xs font-semibold transition-all',
-              activeTab === 'mine'
-                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
-                : 'text-slate-400 hover:text-white'
-            )}
-          >
-            My Notes ({myClipsCount})
-          </button>
-        </div>
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={cn(
+            'px-4 py-2 rounded-xl text-xs font-heading font-bold transition-all border-2 whitespace-nowrap',
+            activeTab === 'all'
+              ? 'bg-nsha-yellow text-nsha-black border-nsha-black shadow-[2px_2px_0_#090909]'
+              : 'bg-nsha-surface text-nsha-text-secondary border-transparent hover:border-nsha-black/20'
+          )}
+        >
+          All Voice Notes ({clips.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('partner')}
+          className={cn(
+            'px-4 py-2 rounded-xl text-xs font-heading font-bold transition-all border-2 whitespace-nowrap',
+            activeTab === 'partner'
+              ? 'bg-nsha-yellow text-nsha-black border-nsha-black shadow-[2px_2px_0_#090909]'
+              : 'bg-nsha-surface text-nsha-text-secondary border-transparent hover:border-nsha-black/20'
+          )}
+        >
+          🎙️ {partnerName}'s Voice ({partnerClipsCount})
+        </button>
+        <button
+          onClick={() => setActiveTab('mine')}
+          className={cn(
+            'px-4 py-2 rounded-xl text-xs font-heading font-bold transition-all border-2 whitespace-nowrap',
+            activeTab === 'mine'
+              ? 'bg-nsha-yellow text-nsha-black border-nsha-black shadow-[2px_2px_0_#090909]'
+              : 'bg-nsha-surface text-nsha-text-secondary border-transparent hover:border-nsha-black/20'
+          )}
+        >
+          My Notes ({myClipsCount})
+        </button>
       </div>
 
       {/* VOICE NOTES VAULT GRID */}
       {loading ? (
-        <div className="py-12 text-center text-slate-400 text-sm">Loading voice notes...</div>
+        <div className="py-12 text-center text-nsha-text-secondary font-heading text-sm">Loading voice notes...</div>
       ) : filteredClips.length === 0 ? (
-        <div className="py-16 text-center rounded-3xl bg-white/[0.02] border border-white/5 backdrop-blur-xl">
-          <Mic className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-          <h3 className="text-base font-semibold text-white mb-1">No voice notes in this tab yet</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+        <div className="nsha-card p-12 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-nsha-yellow border-2 border-nsha-black shadow-nsha-sm mx-auto flex items-center justify-center text-nsha-black mb-3">
+            <Mic className="w-6 h-6" />
+          </div>
+          <h3 className="text-lg font-heading font-bold text-nsha-black mb-1">No voice notes in this tab yet</h3>
+          <p className="text-xs text-nsha-text-secondary max-w-sm mx-auto">
             Tap "Start Recording" above to preserve loving voice messages that both of you can listen to!
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredClips.map((clip) => {
             const isPlaying = playingClipId === clip.id;
             const isPartnerNote = clip.partner !== partner;
@@ -449,10 +443,10 @@ export default function Voice() {
                 key={clip.id}
                 layout
                 className={cn(
-                  'p-5 rounded-3xl border transition-all backdrop-blur-xl shadow-xl flex flex-col justify-between group',
+                  'nsha-card p-5 flex flex-col justify-between group transition-all',
                   isPartnerNote
-                    ? 'bg-gradient-to-br from-pink-950/20 via-slate-900/90 to-rose-950/20 border-pink-500/30'
-                    : 'bg-white/[0.03] border-white/10 hover:border-white/20'
+                    ? 'bg-[#FFF9EA]'
+                    : 'bg-nsha-surface'
                 )}
               >
                 <div>
@@ -460,48 +454,48 @@ export default function Voice() {
                     <div className="flex items-center gap-2.5">
                       <div
                         className={cn(
-                          'w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm shadow-md',
+                          'w-10 h-10 rounded-xl border-2 border-nsha-black shadow-sm flex items-center justify-center font-heading font-bold text-sm',
                           isPartnerNote
-                            ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
-                            : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                            ? 'bg-nsha-pink text-white'
+                            : 'bg-nsha-purple text-white'
                         )}
                       >
                         {authorName ? authorName.charAt(0).toUpperCase() : '❤️'}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-bold text-white">{authorName}</p>
+                          <p className="text-sm font-heading font-bold text-nsha-black">{authorName}</p>
                           {isPartnerNote && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 font-medium">
-                              Partner's Voice
+                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-nsha-yellow text-nsha-black font-heading font-bold border border-nsha-black">
+                              Partner
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-400 flex items-center gap-1">
+                        <p className="text-[11px] text-nsha-text-secondary flex items-center gap-1 mt-0.5">
                           <Clock className="w-3 h-3" />
                           {formatRelativeDate(clip.createdAt || clip.date)}
                         </p>
                       </div>
                     </div>
 
-                    <span className="text-xs font-mono px-2.5 py-1 rounded-xl bg-slate-900 border border-white/10 text-slate-300">
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-white border border-nsha-black/30 text-nsha-black">
                       {formatDuration(clip.duration || 0)}
                     </span>
                   </div>
 
                   {/* Interactive Audio Player Bar */}
-                  <div className="p-3 rounded-2xl bg-slate-950/80 border border-white/5 space-y-2 mt-2">
+                  <div className="p-3.5 rounded-xl bg-white border-2 border-nsha-black shadow-sm space-y-2 mt-3">
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handlePlaySavedClip(clip)}
                         className={cn(
-                          'w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all shadow-md shrink-0',
+                          'w-10 h-10 rounded-xl border-2 border-nsha-black flex items-center justify-center text-nsha-black transition-all shadow-sm shrink-0',
                           isPlaying
-                            ? 'bg-rose-500 shadow-rose-500/40'
-                            : 'bg-white/10 hover:bg-rose-500'
+                            ? 'bg-nsha-pink text-white'
+                            : 'bg-nsha-yellow hover:bg-nsha-pink hover:text-white'
                         )}
                       >
-                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                        {isPlaying ? <Pause className="w-4 h-4 stroke-[2.5]" /> : <Play className="w-4 h-4 ml-0.5 stroke-[2.5]" />}
                       </button>
 
                       {/* Scrubber / Progress bar */}
@@ -513,9 +507,9 @@ export default function Voice() {
                           value={isPlaying ? currentTime : 0}
                           onChange={handleSeek}
                           disabled={!isPlaying}
-                          className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-nsha-black border border-nsha-black"
                         />
-                        <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                        <div className="flex justify-between text-[10px] font-mono text-nsha-text-secondary font-bold">
                           <span>{isPlaying ? formatDuration(Math.floor(currentTime)) : '0s'}</span>
                           <span>{formatDuration(clip.duration || 0)}</span>
                         </div>
@@ -525,8 +519,8 @@ export default function Voice() {
                 </div>
 
                 {/* Footer Toolbar */}
-                <div className="pt-3 mt-3 border-t border-white/5 flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-slate-500 italic">
+                <div className="pt-3 mt-3 border-t-2 border-nsha-black/10 flex items-center justify-between text-xs">
+                  <span className="text-[11px] font-heading font-semibold text-nsha-text-secondary italic">
                     {clip.isChallenge ? 'Daily Challenge Clip' : 'Voice Memory'}
                   </span>
 
@@ -536,7 +530,7 @@ export default function Voice() {
                       download={`voice-${clip.date}.webm`}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors"
+                      className="p-1.5 rounded-lg border border-nsha-black/20 hover:bg-nsha-yellow transition-colors text-nsha-black"
                       title="Download Audio"
                     >
                       <Download className="w-3.5 h-3.5" />
@@ -544,7 +538,7 @@ export default function Voice() {
                     {!isPartnerNote && (
                       <button
                         onClick={() => handleDeleteClip(clip.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 transition-colors"
+                        className="p-1.5 rounded-lg border border-nsha-black/20 hover:bg-nsha-pink hover:text-white transition-colors text-nsha-black"
                         title="Delete Note"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

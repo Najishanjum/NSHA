@@ -3,19 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Image as ImageIcon,
   Mic,
-  Calendar,
   Heart,
   Filter,
   Sparkles,
-  Download,
   Trash2,
   ChevronLeft,
   ChevronRight,
   Play,
   Pause,
   Clock,
-  User,
-  Search,
   Maximize2,
   ZoomIn,
   ZoomOut,
@@ -30,7 +26,6 @@ import { useLanguage } from '@/i18n';
 export default function Memories() {
   const { t } = useLanguage();
   const couple = useCoupleStore((s) => s.couple);
-  const partner = useCoupleStore((s) => s.currentPartner || s.partner);
 
   const [activeTab, setActiveTab] = useState<'photos' | 'voice' | 'on-this-day'>('photos');
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -156,34 +151,29 @@ export default function Memories() {
   const currentModalPhoto = selectedPhotoIndex !== null ? filteredPhotos[selectedPhotoIndex] : null;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto w-full">
+    <div className="py-6 lg:py-10 space-y-8 max-w-6xl mx-auto w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <span className="p-2.5 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20">
-              <Sparkles className="w-6 h-6" />
-            </span>
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
-                {t('memories.title')}
-              </h1>
-              <p className="text-xs text-slate-400">
-                {t('memories.momentsWorthKeeping')}
-              </p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="nsha-icon-box nsha-icon-box-pink">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="nsha-page-eyebrow">NSHA / ARCHIVE</p>
+            <h1 className="nsha-page-title">{t('memories.title')}</h1>
+            <p className="nsha-page-subtitle">{t('memories.momentsWorthKeeping')}</p>
           </div>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex p-1 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shrink-0">
+        <div className="flex p-1.5 bg-nsha-surface border-3 border-nsha-black rounded-2xl shadow-nsha-sm shrink-0 gap-1.5">
           <button
             onClick={() => setActiveTab('photos')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-xl text-xs md:text-sm font-medium transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-xl text-xs md:text-sm font-heading font-bold transition-all',
               activeTab === 'photos'
-                ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-nsha-yellow text-nsha-black border-2 border-nsha-black shadow-[2px_2px_0_#090909]'
+                : 'text-nsha-text-secondary hover:text-nsha-black'
             )}
           >
             <ImageIcon className="w-4 h-4" />
@@ -192,10 +182,10 @@ export default function Memories() {
           <button
             onClick={() => setActiveTab('voice')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-xl text-xs md:text-sm font-medium transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-xl text-xs md:text-sm font-heading font-bold transition-all',
               activeTab === 'voice'
-                ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-nsha-yellow text-nsha-black border-2 border-nsha-black shadow-[2px_2px_0_#090909]'
+                : 'text-nsha-text-secondary hover:text-nsha-black'
             )}
           >
             <Mic className="w-4 h-4" />
@@ -204,10 +194,10 @@ export default function Memories() {
           <button
             onClick={() => setActiveTab('on-this-day')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-xl text-xs md:text-sm font-medium transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-xl text-xs md:text-sm font-heading font-bold transition-all',
               activeTab === 'on-this-day'
-                ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-nsha-yellow text-nsha-black border-2 border-nsha-black shadow-[2px_2px_0_#090909]'
+                : 'text-nsha-text-secondary hover:text-nsha-black'
             )}
           >
             <Clock className="w-4 h-4" />
@@ -218,29 +208,29 @@ export default function Memories() {
 
       {/* Filter Bar */}
       {activeTab !== 'on-this-day' && (
-        <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl flex flex-wrap items-center gap-3 justify-between">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-slate-400 flex items-center gap-1.5 mr-1">
+        <div className="p-4 rounded-2xl bg-nsha-surface border-3 border-nsha-black shadow-nsha-sm flex flex-wrap items-center gap-4 justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-heading font-bold uppercase tracking-wider text-nsha-text-secondary flex items-center gap-1.5">
               <Filter className="w-3.5 h-3.5" /> Filter:
             </span>
 
             {/* Partner filter */}
-            <div className="flex items-center bg-slate-900/90 rounded-xl p-1 border border-white/10 text-xs">
+            <div className="flex items-center bg-nsha-surface rounded-xl p-1 border-2 border-nsha-black text-xs font-heading font-bold gap-1">
               <button
                 onClick={() => setFilterPartner('all')}
-                className={cn('px-2.5 py-1 rounded-lg transition-all', filterPartner === 'all' ? 'bg-rose-500 text-white font-medium' : 'text-slate-400')}
+                className={cn('px-3 py-1.5 rounded-lg transition-all', filterPartner === 'all' ? 'bg-nsha-black text-white' : 'text-nsha-text-secondary hover:text-nsha-black')}
               >
                 {t('achievements.categoryAll')}
               </button>
               <button
                 onClick={() => setFilterPartner('1')}
-                className={cn('px-2.5 py-1 rounded-lg transition-all', filterPartner === '1' ? 'bg-rose-500 text-white font-medium' : 'text-slate-400')}
+                className={cn('px-3 py-1.5 rounded-lg transition-all', filterPartner === '1' ? 'bg-nsha-black text-white' : 'text-nsha-text-secondary hover:text-nsha-black')}
               >
                 {couple?.partner1Name || 'Partner 1'}
               </button>
               <button
                 onClick={() => setFilterPartner('2')}
-                className={cn('px-2.5 py-1 rounded-lg transition-all', filterPartner === '2' ? 'bg-rose-500 text-white font-medium' : 'text-slate-400')}
+                className={cn('px-3 py-1.5 rounded-lg transition-all', filterPartner === '2' ? 'bg-nsha-black text-white' : 'text-nsha-text-secondary hover:text-nsha-black')}
               >
                 {couple?.partner2Name || 'Partner 2'}
               </button>
@@ -251,13 +241,13 @@ export default function Memories() {
               <button
                 onClick={() => setFilterFavorites(!filterFavorites)}
                 className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all',
+                  'flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border-2 border-nsha-black text-xs font-heading font-bold transition-all shadow-[2px_2px_0_#090909]',
                   filterFavorites
-                    ? 'bg-rose-500/20 border-rose-500/40 text-rose-400'
-                    : 'bg-slate-900/60 border-white/10 text-slate-400 hover:text-white'
+                    ? 'bg-nsha-pink text-white'
+                    : 'bg-nsha-surface text-nsha-black hover:bg-nsha-yellow/30'
                 )}
               >
-                <Heart className={cn('w-3.5 h-3.5', filterFavorites && 'fill-rose-500 text-rose-500')} />
+                <Heart className={cn('w-3.5 h-3.5', filterFavorites ? 'fill-white text-white' : 'text-nsha-pink')} />
                 {t('memories.favoritesTab')}
               </button>
             )}
@@ -269,12 +259,12 @@ export default function Memories() {
               type="date"
               value={searchDate}
               onChange={(e) => setSearchDate(e.target.value)}
-              className="bg-slate-900/90 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-rose-500"
+              className="bg-nsha-surface border-2 border-nsha-black rounded-xl px-3 py-1.5 text-xs font-body font-medium text-nsha-black focus:outline-none focus:ring-2 focus:ring-nsha-yellow"
             />
             {searchDate && (
               <button
                 onClick={() => setSearchDate('')}
-                className="text-xs text-rose-400 hover:underline"
+                className="text-xs font-heading font-bold text-nsha-pink hover:underline"
               >
                 Reset
               </button>
@@ -287,17 +277,17 @@ export default function Memories() {
       {activeTab === 'photos' && (
         <>
           {filteredPhotos.length === 0 ? (
-            <div className="py-20 text-center rounded-3xl bg-white/[0.02] border border-white/5 backdrop-blur-xl">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400">
-                <ImageIcon className="w-8 h-8 opacity-60" />
+            <div className="nsha-card p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-nsha-yellow border-2 border-nsha-black shadow-nsha-sm flex items-center justify-center text-nsha-black">
+                <ImageIcon className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-1">{t('empty.noPhotos')}</h3>
-              <p className="text-sm text-slate-400 max-w-sm mx-auto">
+              <h3 className="text-xl font-heading font-bold text-nsha-black mb-1">{t('empty.noPhotos')}</h3>
+              <p className="text-sm text-nsha-text-secondary max-w-sm mx-auto">
                 {t('memories.emptyStateSub')}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {filteredPhotos.map((photo, index) => (
                 <motion.div
                   key={photo.id}
@@ -309,44 +299,44 @@ export default function Memories() {
                     setSelectedPhotoIndex(index);
                     setIsZoomed(false);
                   }}
-                  className="group relative aspect-square rounded-2xl overflow-hidden border border-white/10 bg-slate-950 cursor-pointer shadow-lg hover:border-rose-500/60 transition-all hover:shadow-xl hover:shadow-rose-500/10 flex items-center justify-center p-2"
+                  className="group relative aspect-square rounded-[18px] overflow-hidden border-3 border-nsha-black bg-nsha-surface cursor-pointer shadow-nsha-sm hover:shadow-nsha hover:-translate-y-1 transition-all flex items-center justify-center p-2"
                 >
                   <img
                     src={photo.fileUrl}
                     alt={photo.caption || 'Memory'}
-                    className="w-full h-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
 
-                  <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity p-2.5 flex flex-col justify-between rounded-2xl">
+                  <div className="absolute inset-0 bg-nsha-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2.5 flex flex-col justify-between rounded-[16px]">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-black/80 text-white font-medium">
+                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-nsha-yellow text-nsha-black font-heading font-bold border border-nsha-black">
                         {photo.partner === 1 ? couple?.partner1Name : couple?.partner2Name}
                       </span>
                       <button
                         onClick={(e) => handleToggleFavorite(photo, e)}
-                        className="p-1.5 rounded-full bg-black/80 text-white hover:text-rose-400 transition-colors"
+                        className="p-1.5 rounded-full bg-nsha-surface border border-nsha-black text-nsha-black hover:bg-nsha-pink hover:text-white transition-colors"
                       >
                         <Heart
-                          className={cn('w-3.5 h-3.5', photo.isFavorite && 'fill-rose-500 text-rose-500')}
+                          className={cn('w-3.5 h-3.5', photo.isFavorite && 'fill-nsha-pink text-nsha-pink')}
                         />
                       </button>
                     </div>
 
                     <div className="flex items-center justify-center">
-                      <span className="px-3 py-1 rounded-full bg-rose-600/90 text-white text-[11px] font-semibold flex items-center gap-1 shadow-lg">
+                      <span className="px-3 py-1 rounded-xl bg-nsha-yellow text-nsha-black text-xs font-heading font-bold border-2 border-nsha-black flex items-center gap-1 shadow-sm">
                         <Maximize2 className="w-3 h-3" /> View
                       </span>
                     </div>
 
-                    <div className="text-[10px] text-slate-300 truncate">
+                    <div className="text-[10px] text-white font-mono truncate">
                       {photo.caption ? photo.caption : photo.date}
                     </div>
                   </div>
 
                   {photo.isFavorite && (
-                    <div className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-950/80 text-rose-500 group-hover:hidden">
-                      <Heart className="w-3 h-3 fill-rose-500" />
+                    <div className="absolute top-2 right-2 p-1.5 rounded-full bg-nsha-surface border-2 border-nsha-black text-nsha-pink group-hover:hidden shadow-sm">
+                      <Heart className="w-3 h-3 fill-nsha-pink" />
                     </div>
                   )}
                 </motion.div>
@@ -358,7 +348,7 @@ export default function Memories() {
 
       {/* Tab 2: Voice Clips */}
       {activeTab === 'voice' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {filteredVoiceClips.map((clip) => {
             const isPlaying = playingClipId === clip.id;
             const authorName = clip.partner === 1 ? couple?.partner1Name : couple?.partner2Name;
@@ -366,34 +356,34 @@ export default function Memories() {
             return (
               <div
                 key={clip.id}
-                className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl"
+                className="nsha-card p-5"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center">
-                      <Mic className="w-4 h-4" />
+                    <div className="w-10 h-10 rounded-xl bg-nsha-yellow border-2 border-nsha-black shadow-nsha-sm text-nsha-black flex items-center justify-center">
+                      <Mic className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{authorName}</p>
-                      <p className="text-[11px] text-slate-400">{clip.date}</p>
+                      <p className="text-sm font-heading font-bold text-nsha-black">{authorName}</p>
+                      <p className="text-xs text-nsha-text-secondary">{clip.date}</p>
                     </div>
                   </div>
-                  <span className="text-xs font-mono text-slate-400">
+                  <span className="text-xs font-mono font-bold text-nsha-text-secondary bg-nsha-surface border border-nsha-black/20 px-2 py-0.5 rounded-md">
                     {formatDuration(clip.duration || 0)}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3 pt-2 border-t border-white/5">
+                <div className="flex items-center gap-3 pt-3 border-t-2 border-nsha-black/10">
                   <button
                     onClick={() => handlePlayVoice(clip)}
                     className={cn(
-                      'w-9 h-9 rounded-full flex items-center justify-center transition-all',
-                      isPlaying ? 'bg-pink-500 text-white' : 'bg-white/10 text-white hover:bg-pink-500'
+                      'w-10 h-10 rounded-xl border-2 border-nsha-black flex items-center justify-center transition-all shadow-[2px_2px_0_#090909]',
+                      isPlaying ? 'bg-nsha-pink text-white' : 'bg-nsha-yellow text-nsha-black hover:bg-nsha-pink hover:text-white'
                     )}
                   >
-                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                    {isPlaying ? <Pause className="w-4 h-4 stroke-[2.5]" /> : <Play className="w-4 h-4 ml-0.5 stroke-[2.5]" />}
                   </button>
-                  <p className="text-xs text-slate-300">
+                  <p className="text-xs font-heading font-bold text-nsha-black">
                     {isPlaying ? t('voice.recording') : t('voice.play')}
                   </p>
                 </div>
@@ -407,14 +397,14 @@ export default function Memories() {
       {activeTab === 'on-this-day' && (
         <div className="space-y-4">
           {onThisDayMemories.length === 0 ? (
-            <div className="py-16 text-center text-slate-400 text-sm">
+            <div className="nsha-card p-12 text-center text-nsha-text-secondary font-heading text-sm">
               {t('memories.emptyStateTitle')}
             </div>
           ) : (
             onThisDayMemories.map((mem) => (
-              <div key={mem.date} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
-                <p className="text-sm font-bold text-rose-400 mb-2">{formatDate(mem.date)}</p>
-                <p className="text-xs text-slate-300">
+              <div key={mem.date} className="nsha-card p-5">
+                <p className="text-base font-heading font-bold text-nsha-pink mb-1">{formatDate(mem.date)}</p>
+                <p className="text-xs font-heading font-bold text-nsha-text-secondary">
                   {mem.photos} {t('home.photos')} • {mem.voiceClips} {t('home.voiceClips')} • {mem.calls} {t('nav.calls')}
                 </p>
               </div>
@@ -434,18 +424,18 @@ export default function Memories() {
               setSelectedPhotoIndex(null);
               setIsZoomed(false);
             }}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-between p-3 sm:p-6"
+            className="fixed inset-0 z-50 bg-nsha-black/85 backdrop-blur-md flex flex-col items-center justify-between p-3 sm:p-6"
           >
             {/* Top Toolbar */}
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-5xl flex items-center justify-between py-2 px-4 rounded-2xl bg-slate-900/80 border border-white/10 backdrop-blur-xl z-20"
+              className="w-full max-w-5xl flex items-center justify-between py-2.5 px-5 rounded-2xl bg-nsha-surface border-3 border-nsha-black shadow-nsha z-20"
             >
               <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                <span className="text-xs font-heading font-bold px-3 py-1 rounded-xl bg-nsha-yellow text-nsha-black border-2 border-nsha-black">
                   {currentModalPhoto.partner === 1 ? couple?.partner1Name : couple?.partner2Name}
                 </span>
-                <span className="text-xs text-slate-300 font-medium">
+                <span className="text-xs font-heading font-bold text-nsha-black">
                   {formatDate(currentModalPhoto.date)}
                 </span>
               </div>
@@ -453,13 +443,13 @@ export default function Memories() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all"
+                  className="p-2 rounded-xl border-2 border-nsha-black hover:bg-nsha-yellow transition-all"
                 >
-                  {isZoomed ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
+                  {isZoomed ? <ZoomOut className="w-4 h-4 text-nsha-black" /> : <ZoomIn className="w-4 h-4 text-nsha-black" />}
                 </button>
                 <button
                   onClick={() => handleDeletePhoto(currentModalPhoto.id)}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 transition-all"
+                  className="p-2 rounded-xl border-2 border-nsha-black hover:bg-nsha-pink hover:text-white transition-all"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -468,9 +458,9 @@ export default function Memories() {
                     setSelectedPhotoIndex(null);
                     setIsZoomed(false);
                   }}
-                  className="p-2 rounded-xl bg-white/10 hover:bg-rose-500 text-white transition-all ml-1"
+                  className="p-2 rounded-xl border-2 border-nsha-black hover:bg-nsha-yellow transition-all ml-1"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 text-nsha-black" />
                 </button>
               </div>
             </div>
@@ -478,7 +468,7 @@ export default function Memories() {
             {/* Central Full View Area */}
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative flex-1 w-full max-w-5xl flex items-center justify-center my-3 overflow-hidden"
+              className="relative flex-1 w-full max-w-5xl flex items-center justify-center my-4 overflow-hidden"
             >
               {selectedPhotoIndex !== null && selectedPhotoIndex > 0 && (
                 <button
@@ -486,9 +476,9 @@ export default function Memories() {
                     setSelectedPhotoIndex(selectedPhotoIndex - 1);
                     setIsZoomed(false);
                   }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/70 hover:bg-rose-600 text-white backdrop-blur-md transition-all shadow-xl"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-2xl bg-nsha-surface border-3 border-nsha-black shadow-nsha text-nsha-black hover:bg-nsha-yellow transition-all"
                 >
-                  <ChevronLeft className="w-6 h-6" />
+                  <ChevronLeft className="w-6 h-6 stroke-[3]" />
                 </button>
               )}
 
@@ -498,9 +488,9 @@ export default function Memories() {
                     setSelectedPhotoIndex(selectedPhotoIndex + 1);
                     setIsZoomed(false);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/70 hover:bg-rose-600 text-white backdrop-blur-md transition-all shadow-xl"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-2xl bg-nsha-surface border-3 border-nsha-black shadow-nsha text-nsha-black hover:bg-nsha-yellow transition-all"
                 >
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-6 h-6 stroke-[3]" />
                 </button>
               )}
 
@@ -509,7 +499,7 @@ export default function Memories() {
                   src={currentModalPhoto.fileUrl}
                   alt={currentModalPhoto.caption || 'Full Memory'}
                   className={cn(
-                    'max-w-full max-h-[75vh] object-contain rounded-2xl shadow-2xl transition-all duration-300',
+                    'max-w-full max-h-[75vh] object-contain rounded-2xl border-3 border-nsha-black shadow-nsha bg-nsha-surface transition-all duration-300',
                     isZoomed ? 'scale-125 cursor-zoom-out' : 'cursor-zoom-in'
                   )}
                   onClick={() => setIsZoomed(!isZoomed)}
@@ -520,7 +510,7 @@ export default function Memories() {
             {currentModalPhoto.caption && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-2xl py-2.5 px-4 rounded-xl bg-slate-900/90 border border-white/10 text-center text-sm font-medium text-white shadow-xl"
+                className="w-full max-w-2xl py-3 px-5 rounded-2xl bg-nsha-surface border-3 border-nsha-black text-center text-sm font-heading font-bold text-nsha-black shadow-nsha"
               >
                 "{currentModalPhoto.caption}"
               </div>
@@ -531,4 +521,3 @@ export default function Memories() {
     </div>
   );
 }
-

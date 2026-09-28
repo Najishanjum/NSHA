@@ -3,15 +3,8 @@ import { motion } from 'framer-motion';
 import {
   Trophy,
   Award,
-  Sparkles,
-  Flame,
-  Camera,
-  Mic,
-  Phone,
-  Calendar,
   Lock,
   CheckCircle,
-  Star,
 } from 'lucide-react';
 import { useCoupleStore } from '@/stores';
 import { achievementApi, statsApi } from '@/services/api';
@@ -56,7 +49,6 @@ export default function Achievements() {
   const unlockedMap = new Map<string, UserAchievement>();
   unlockedAchievements.forEach((u) => unlockedMap.set(u.achievementId, u));
 
-  // Determine current couple level based on total completed days
   const completedDays = stats?.totalCompletedDays || 0;
   const currentLevel =
     COUPLE_LEVELS.find((l) => completedDays >= l.minDays && completedDays <= l.maxDays) ||
@@ -101,53 +93,48 @@ export default function Achievements() {
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-5xl mx-auto">
-      {/* Header */}
+    <div className="py-6 lg:py-10 space-y-8 max-w-5xl mx-auto">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            <Trophy className="w-6 h-6" />
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="nsha-icon-box" style={{ background: '#FFE28A' }}>
+            <Trophy className="w-5 h-5 text-nsha-black" />
+          </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-amber-400 via-yellow-300 to-rose-400 bg-clip-text text-transparent">
-              Badges & Achievements
-            </h1>
-            <p className="text-xs md:text-sm text-slate-400">
-              Celebrate your milestones as your relationship story grows
-            </p>
+            <p className="nsha-page-eyebrow">NSHA / ACHIEVEMENTS</p>
+            <h1 className="nsha-page-title">Badges & Achievements</h1>
+            <p className="nsha-page-subtitle">Celebrate your milestones as your relationship story grows</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900/80 border border-white/10 backdrop-blur-xl">
-          <Award className="w-5 h-5 text-amber-400" />
-          <span className="text-sm font-semibold text-white">
-            {unlockedAchievements.length} / {ACHIEVEMENTS.length} Unlocked
-          </span>
+        <div className="nsha-badge">
+          <Award className="w-4 h-4" />
+          {unlockedAchievements.length} / {ACHIEVEMENTS.length} Unlocked
         </div>
       </div>
 
-      {/* Couple Level Progression Card */}
-      <div className="p-6 rounded-3xl bg-gradient-to-br from-purple-900/30 via-slate-900/80 to-rose-950/30 border border-purple-500/20 backdrop-blur-xl shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+      {/* Couple Level Card */}
+      <div className="nsha-card p-6 md:p-8" style={{ background: '#FFD21C' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl shadow-lg shadow-purple-500/30">
+            <div className="w-14 h-14 rounded-2xl bg-nsha-purple border-3 border-nsha-black flex items-center justify-center text-3xl" style={{ borderWidth: '3px' }}>
               {currentLevel.emoji}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                <span className="nsha-badge nsha-badge-purple text-[10px]">
                   Level {currentLevel.level}
                 </span>
-                <span className="text-xs text-slate-400">• {completedDays} Days Completed</span>
+                <span className="text-xs text-nsha-text-secondary font-semibold">• {completedDays} Days</span>
               </div>
-              <h2 className="text-xl font-bold text-white">{currentLevel.title}</h2>
+              <h2 className="font-heading font-bold text-xl text-nsha-black">{currentLevel.title}</h2>
             </div>
           </div>
 
           {nextLevel && (
             <div className="text-left sm:text-right">
-              <span className="text-xs text-slate-400">Next Rank:</span>
-              <p className="text-sm font-semibold text-purple-300">
+              <span className="text-xs text-nsha-text-secondary font-semibold">Next Rank:</span>
+              <p className="text-sm font-heading font-bold text-nsha-black">
                 {nextLevel.emoji} {nextLevel.title} ({nextLevel.minDays - completedDays} days away)
               </p>
             </div>
@@ -156,15 +143,15 @@ export default function Achievements() {
 
         {/* Level Progress Bar */}
         <div className="space-y-1.5">
-          <div className="h-2.5 w-full bg-slate-950 rounded-full overflow-hidden p-0.5 border border-white/5">
+          <div className="nsha-progress">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${levelProgress}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg shadow-pink-500/50"
+              className="nsha-progress-fill bg-nsha-purple"
             />
           </div>
-          <div className="flex justify-between text-[11px] text-slate-400">
+          <div className="flex justify-between text-[11px] text-nsha-text-secondary font-semibold">
             <span>{currentLevel.minDays} days</span>
             <span>{nextLevel ? `${nextLevel.minDays} days` : 'Max Level'}</span>
           </div>
@@ -172,13 +159,13 @@ export default function Achievements() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
         {(
           [
             { id: 'all', label: 'All Badges' },
             { id: 'streak', label: 'Streak 🔥' },
             { id: 'photos', label: 'Photos 📸' },
-            { id: 'vcs', label: 'Voice Clips 🎙️' },
+            { id: 'vcs', label: 'Voice 🎙️' },
             { id: 'calls', label: 'Calls 📞' },
             { id: 'days', label: 'Days ❤️' },
           ] as const
@@ -187,10 +174,10 @@ export default function Achievements() {
             key={tab.id}
             onClick={() => setCategoryFilter(tab.id)}
             className={cn(
-              'px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border',
+              'px-4 py-2 rounded-xl text-xs font-heading font-bold whitespace-nowrap transition-all',
               categoryFilter === tab.id
-                ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-lg shadow-amber-500/10'
-                : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white'
+                ? 'bg-nsha-yellow text-nsha-black border-2 border-nsha-black shadow-[3px_3px_0_#090909]'
+                : 'bg-nsha-surface text-nsha-text-secondary border-2 border-transparent hover:border-nsha-black/20 hover:text-nsha-black'
             )}
           >
             {tab.label}
@@ -199,7 +186,7 @@ export default function Achievements() {
       </div>
 
       {/* Achievements Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
         {filteredAchievements.map((ach) => {
           const isUnlocked = unlockedMap.has(ach.id);
           const unlockedData = unlockedMap.get(ach.id);
@@ -210,55 +197,56 @@ export default function Achievements() {
               key={ach.id}
               whileHover={{ y: -3 }}
               className={cn(
-                'p-5 rounded-3xl border transition-all backdrop-blur-xl relative overflow-hidden flex flex-col justify-between',
-                isUnlocked
-                  ? 'bg-gradient-to-br from-amber-500/10 via-slate-900/90 to-rose-500/10 border-amber-500/30 shadow-lg shadow-amber-500/10'
-                  : 'bg-white/[0.02] border-white/5 opacity-70'
+                'nsha-card-sm p-5 flex flex-col justify-between',
+                isUnlocked ? 'bg-nsha-yellow-soft' : 'opacity-70'
               )}
+              style={!isUnlocked ? { background: '#F0EDE6' } : {}}
             >
               <div>
                 <div className="flex items-start justify-between mb-3">
                   <div
                     className={cn(
-                      'w-12 h-12 rounded-2xl flex items-center justify-center text-2xl border',
+                      'w-12 h-12 rounded-xl flex items-center justify-center text-2xl',
                       isUnlocked
-                        ? 'bg-amber-500/20 border-amber-500/40 shadow-md shadow-amber-500/20'
-                        : 'bg-slate-900 border-white/10 grayscale'
+                        ? 'bg-nsha-yellow border-2 border-nsha-black'
+                        : 'bg-[#E8E4DA] border-2 border-[#D4D0C7] grayscale'
                     )}
                   >
                     {ach.emoji}
                   </div>
 
                   {isUnlocked ? (
-                    <span className="p-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                      <CheckCircle className="w-4 h-4" />
+                    <span className="nsha-badge nsha-badge-green text-[10px]">
+                      <CheckCircle className="w-3 h-3" />
+                      Done
                     </span>
                   ) : (
-                    <span className="p-1.5 rounded-full bg-white/5 text-slate-500 border border-white/10">
-                      <Lock className="w-4 h-4" />
+                    <span className="nsha-badge nsha-badge-outline text-[10px]">
+                      <Lock className="w-3 h-3" />
+                      Locked
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-base font-bold text-white mb-1">{ach.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed mb-4">{ach.description}</p>
+                <h3 className="font-heading font-bold text-base text-nsha-black mb-1">{ach.title}</h3>
+                <p className="text-xs text-nsha-text-secondary leading-relaxed mb-4">{ach.description}</p>
               </div>
 
-              {/* Progress or Unlocked Time */}
-              <div className="pt-3 border-t border-white/5">
+              {/* Progress or Unlock date */}
+              <div className="pt-3" style={{ borderTop: '2px solid #090909' }}>
                 {isUnlocked ? (
-                  <p className="text-[11px] text-amber-400/80 font-medium">
+                  <p className="text-[11px] text-nsha-text-secondary font-heading font-semibold">
                     Unlocked {unlockedData?.unlockedAt ? formatDate(unlockedData.unlockedAt) : 'recently'}
                   </p>
                 ) : (
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                    <div className="flex justify-between text-[10px] text-nsha-text-secondary font-heading font-bold">
                       <span>Progress</span>
                       <span>{progressPercent}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+                    <div className="nsha-progress" style={{ height: '8px' }}>
                       <div
-                        className="h-full bg-slate-600 rounded-full"
+                        className="nsha-progress-fill bg-nsha-text-secondary"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>

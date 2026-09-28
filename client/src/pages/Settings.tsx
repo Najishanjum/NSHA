@@ -5,11 +5,7 @@ import {
   Heart,
   Copy,
   Check,
-  Calendar,
-  Clock,
-  Shield,
   Snowflake,
-  User,
   Users,
   LogOut,
   Save,
@@ -86,107 +82,107 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <span className="p-2.5 rounded-2xl bg-slate-800 text-slate-300 border border-white/10">
-          <SettingsIcon className="w-6 h-6" />
-        </span>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-200 via-rose-300 to-pink-300 bg-clip-text text-transparent">
-            {t('settings.title')}
-          </h1>
-          <p className="text-xs md:text-sm text-slate-400">
-            {t('settings.subtitle')}
-          </p>
+    <div className="py-6 lg:py-10 space-y-6 max-w-4xl mx-auto">
+      {/* Page Header */}
+      <div className="nsha-page-header">
+        <div className="flex items-center gap-3">
+          <div className="nsha-icon-box">
+            <SettingsIcon className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="nsha-page-eyebrow">NSHA / SETTINGS</p>
+            <h1 className="nsha-page-title">{t('settings.title')}</h1>
+          </div>
         </div>
+        <p className="nsha-page-subtitle mt-2">{t('settings.subtitle')}</p>
       </div>
 
-      {/* Language Experience Card */}
-      <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Language */}
+      <div className="nsha-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <Globe className="w-5 h-5 text-rose-400" />
+          <h3 className="font-heading font-bold text-base text-nsha-black flex items-center gap-2">
+            <Globe className="w-5 h-5 text-nsha-purple" />
             {t('settings.languageSection')}
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-nsha-text-secondary mt-1">
             {t('settings.languageDesc')}
           </p>
         </div>
-
         <LanguageSwitcher size="md" />
       </div>
 
-      {/* Couple Share Code Card */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-purple-500/10 border border-rose-500/20 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Couple Code */}
+      <div className="nsha-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ background: '#FFD21C' }}>
         <div>
-          <span className="text-xs font-semibold text-rose-400 uppercase tracking-wider">
+          <span className="nsha-badge nsha-badge-outline text-[10px] mb-2 inline-flex">
             {t('settings.coupleCode')}
           </span>
-          <p className="text-2xl font-mono font-bold text-white mt-1">{couple?.code}</p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="font-mono text-2xl font-bold text-nsha-black mt-1">{couple?.code}</p>
+          <p className="text-xs text-nsha-text-secondary mt-1">
             {t('welcome.shareCodePrompt')}
           </p>
         </div>
 
         <button
           onClick={handleCopyCode}
-          className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold transition-all"
+          className="nsha-btn nsha-btn-black nsha-btn-sm"
         >
-          {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           {copied ? t('common.copied') : t('settings.copyCode')}
         </button>
       </div>
 
-      {/* Switch Current Persona Card */}
-      <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
-        <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-          <Users className="w-5 h-5 text-rose-400" />
+      {/* Switch Partner */}
+      <div className="nsha-card p-6">
+        <h3 className="font-heading font-bold text-base text-nsha-black mb-2 flex items-center gap-2">
+          <Users className="w-5 h-5 text-nsha-pink" />
           {t('settings.switchPartner')}
         </h3>
-        <p className="text-xs text-slate-400 mb-4">
+        <p className="text-xs text-nsha-text-secondary mb-4">
           {t('settings.currentIdentity', { name: partner === 1 ? (couple?.partner1Name || 'Partner 1') : (couple?.partner2Name || 'Partner 2') })}
         </p>
 
         <div className="grid grid-cols-2 gap-3 max-w-md">
           <button
             onClick={() => setPartner(1)}
-            className={`p-4 rounded-2xl border transition-all text-left ${
+            className={`p-4 rounded-xl text-left transition-all ${
               partner === 1
-                ? 'bg-rose-500/20 border-rose-500/50 text-white ring-2 ring-rose-500/30'
-                : 'bg-slate-900 border-white/10 text-slate-400 hover:text-white'
+                ? 'bg-nsha-pink text-white border-3 border-nsha-black shadow-[3px_3px_0_#090909]'
+                : 'bg-nsha-surface border-2 border-nsha-black text-nsha-text-secondary hover:bg-nsha-yellow/20'
             }`}
+            style={{ borderWidth: partner === 1 ? '3px' : '2px' }}
           >
-            <span className="text-xs text-rose-400 font-bold block mb-1">Partner 1</span>
-            <p className="text-sm font-semibold">{couple?.partner1Name || 'Partner 1'}</p>
+            <span className="text-xs font-heading font-bold block mb-1">Partner 1</span>
+            <p className="text-sm font-heading font-semibold">{couple?.partner1Name || 'Partner 1'}</p>
           </button>
 
           <button
             onClick={() => setPartner(2)}
-            className={`p-4 rounded-2xl border transition-all text-left ${
+            className={`p-4 rounded-xl text-left transition-all ${
               partner === 2
-                ? 'bg-rose-500/20 border-rose-500/50 text-white ring-2 ring-rose-500/30'
-                : 'bg-slate-900 border-white/10 text-slate-400 hover:text-white'
+                ? 'bg-nsha-purple text-white border-3 border-nsha-black shadow-[3px_3px_0_#090909]'
+                : 'bg-nsha-surface border-2 border-nsha-black text-nsha-text-secondary hover:bg-nsha-yellow/20'
             }`}
+            style={{ borderWidth: partner === 2 ? '3px' : '2px' }}
           >
-            <span className="text-xs text-pink-400 font-bold block mb-1">Partner 2</span>
-            <p className="text-sm font-semibold">{couple?.partner2Name || 'Partner 2'}</p>
+            <span className="text-xs font-heading font-bold block mb-1">Partner 2</span>
+            <p className="text-sm font-heading font-semibold">{couple?.partner2Name || 'Partner 2'}</p>
           </button>
         </div>
       </div>
 
-      {/* Streak Freeze Management */}
-      <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
+      {/* Streak Freeze */}
+      <div className="nsha-card p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Snowflake className="w-5 h-5 text-sky-400" />
+            <h3 className="font-heading font-bold text-base text-nsha-black flex items-center gap-2">
+              <Snowflake className="w-5 h-5 text-nsha-purple" />
               {t('streak.streakFreeze')}
             </h3>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-nsha-text-secondary mt-1">
               {t('streak.dontBreakStreak')}
             </p>
-            <p className="text-sm font-semibold text-sky-300 mt-2">
+            <p className="text-sm font-heading font-bold text-nsha-purple mt-2">
               {couple?.streakFreezesRemaining ?? 2} Freezes Available
             </p>
           </div>
@@ -194,7 +190,7 @@ export default function Settings() {
           <button
             onClick={handleUseFreeze}
             disabled={(couple?.streakFreezesRemaining ?? 0) <= 0}
-            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/30 text-sky-300 font-semibold text-xs disabled:opacity-40 transition-all"
+            className="nsha-btn nsha-btn-purple nsha-btn-sm"
           >
             <Snowflake className="w-4 h-4" />
             {t('streak.useFreeze')}
@@ -202,64 +198,64 @@ export default function Settings() {
         </div>
 
         {freezeMessage && (
-          <p className="text-xs font-semibold text-sky-400 mt-3">{freezeMessage}</p>
+          <p className="text-xs font-heading font-semibold text-nsha-purple mt-3">{freezeMessage}</p>
         )}
       </div>
 
       {/* Profile Form */}
-      <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
-        <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-          <Heart className="w-5 h-5 text-rose-400" />
+      <div className="nsha-card p-6">
+        <h3 className="font-heading font-bold text-base text-nsha-black mb-4 flex items-center gap-2">
+          <Heart className="w-5 h-5 text-nsha-pink" />
           {t('settings.partnerInfo')}
         </h3>
 
         <form onSubmit={handleSaveProfile} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">{t('welcome.coupleNickname')}</label>
+            <label className="block text-xs font-heading font-bold text-nsha-text-secondary mb-1.5">{t('welcome.coupleNickname')}</label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-500"
+              className="nsha-input"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">{t('welcome.yourName')}</label>
+              <label className="block text-xs font-heading font-bold text-nsha-text-secondary mb-1.5">{t('welcome.yourName')}</label>
               <input
                 type="text"
                 value={partner1Name}
                 onChange={(e) => setPartner1Name(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-500"
+                className="nsha-input"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">{t('welcome.partnerName')}</label>
+              <label className="block text-xs font-heading font-bold text-nsha-text-secondary mb-1.5">{t('welcome.partnerName')}</label>
               <input
                 type="text"
                 value={partner2Name}
                 onChange={(e) => setPartner2Name(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-500"
+                className="nsha-input"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">
+            <label className="block text-xs font-heading font-bold text-nsha-text-secondary mb-1.5">
               {t('welcome.relationshipDate')}
             </label>
             <input
               type="date"
               value={anniversary}
               onChange={(e) => setAnniversary(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-500"
+              className="nsha-input"
             />
           </div>
 
           <div className="flex items-center justify-between pt-3">
             {savedMessage ? (
-              <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+              <span className="text-xs text-nsha-green font-heading font-bold flex items-center gap-1.5">
                 <Check className="w-4 h-4" /> {t('common.success')}
               </span>
             ) : (
@@ -268,7 +264,7 @@ export default function Settings() {
 
             <button
               type="submit"
-              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-semibold shadow-lg shadow-rose-500/20"
+              className="nsha-btn nsha-btn-primary nsha-btn-sm"
             >
               <Save className="w-4 h-4" />
               {t('common.save')}
@@ -278,19 +274,21 @@ export default function Settings() {
       </div>
 
       {/* Danger Zone */}
-      <div className="p-6 rounded-3xl bg-rose-500/5 border border-rose-500/20 backdrop-blur-xl flex items-center justify-between">
+      <div className="nsha-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4" style={{ background: '#FFF0F0', borderColor: '#EF4444' }}>
         <div>
-          <h4 className="text-sm font-bold text-rose-400 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" /> Exit Couple Space
+          <h4 className="font-heading font-bold text-sm text-red-500 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            Exit Couple Space
           </h4>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-nsha-text-secondary mt-1">
             Log out from this session on this device. Your data is safely preserved.
           </p>
         </div>
 
         <button
           onClick={logout}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 transition-all"
+          className="nsha-btn nsha-btn-sm"
+          style={{ background: '#EF4444', color: '#fff', borderColor: '#090909' }}
         >
           <LogOut className="w-4 h-4" />
           Leave Space
@@ -299,4 +297,3 @@ export default function Settings() {
     </div>
   );
 }
-

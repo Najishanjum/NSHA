@@ -6,11 +6,8 @@ import {
   Unlock,
   Clock,
   Plus,
-  Sparkles,
-  Calendar,
   Eye,
-  Heart,
-  AlertCircle,
+  X,
 } from 'lucide-react';
 import { useCoupleStore } from '@/stores';
 import { surpriseApi } from '@/services/api';
@@ -97,18 +94,17 @@ export default function Surprises() {
   };
 
   return (
-    <div className="space-y-6 pb-20 max-w-5xl mx-auto">
+    <div className="py-6 lg:py-10 space-y-8 pb-20 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="p-2.5 rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20">
-            <Gift className="w-6 h-6" />
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="nsha-icon-box nsha-icon-box-pink">
+            <Gift className="w-5 h-5 text-white" />
+          </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-fuchsia-400 via-pink-400 to-rose-300 bg-clip-text text-transparent">
-              Time Capsule Surprises
-            </h1>
-            <p className="text-xs md:text-sm text-slate-400">
+            <p className="nsha-page-eyebrow">NSHA / TIME CAPSULE</p>
+            <h1 className="nsha-page-title">Time Capsule Surprises</h1>
+            <p className="nsha-page-subtitle">
               Lock secret messages & surprises that only open on a special moment in the future
             </p>
           </div>
@@ -116,7 +112,7 @@ export default function Surprises() {
 
         <button
           onClick={() => setIsCreating(true)}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-semibold shadow-lg shadow-fuchsia-500/25 hover:shadow-fuchsia-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="nsha-btn nsha-btn-primary"
         >
           <Plus className="w-4 h-4" />
           Lock a Surprise
@@ -127,66 +123,81 @@ export default function Surprises() {
       <AnimatePresence>
         {isCreating && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="p-6 rounded-3xl bg-slate-950 border border-fuchsia-500/30 shadow-2xl backdrop-blur-xl space-y-4"
+            exit={{ opacity: 0, scale: 0.96 }}
+            className="nsha-card p-6 sm:p-8 space-y-5"
           >
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Lock className="w-4 h-4 text-fuchsia-400" />
-              Lock a Future Surprise for{' '}
-              <span className="text-fuchsia-400">
-                {partner === 1 ? couple?.partner2Name : couple?.partner1Name}
-              </span>
-            </h3>
+            <div className="flex items-center justify-between border-b-2 border-nsha-black pb-4">
+              <h3 className="text-xl font-heading font-bold text-nsha-black flex items-center gap-2">
+                <Lock className="w-5 h-5 text-nsha-pink" />
+                Lock a Future Surprise for{' '}
+                <span className="text-nsha-pink">
+                  {partner === 1 ? couple?.partner2Name : couple?.partner1Name}
+                </span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsCreating(false)}
+                className="p-1.5 rounded-xl border-2 border-nsha-black hover:bg-nsha-yellow transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Capsule Title / Hint</label>
+                <label className="block text-xs font-heading font-bold text-nsha-text-secondary uppercase tracking-wider mb-1.5">
+                  Capsule Title / Hint
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. Open on our 6-month anniversary! 🎂"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-fuchsia-500"
+                  className="nsha-input"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Secret Message / Content</label>
+                <label className="block text-xs font-heading font-bold text-nsha-text-secondary uppercase tracking-wider mb-1.5">
+                  Secret Message / Content
+                </label>
                 <textarea
                   rows={4}
                   placeholder="Write what you want them to see when the clock strikes..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-fuchsia-500 resize-none"
+                  className="nsha-input resize-none"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Unlock Date & Time</label>
+                <label className="block text-xs font-heading font-bold text-nsha-text-secondary uppercase tracking-wider mb-1.5">
+                  Unlock Date & Time
+                </label>
                 <input
                   type="datetime-local"
                   value={unlockAt}
                   onChange={(e) => setUnlockAt(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-sm focus:outline-none focus:border-fuchsia-500"
+                  className="nsha-input"
                   required
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-3 pt-3">
                 <button
                   type="button"
                   onClick={() => setIsCreating(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+                  className="nsha-btn nsha-btn-secondary nsha-btn-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white text-xs font-semibold shadow-lg shadow-fuchsia-500/20"
+                  className="nsha-btn nsha-btn-primary nsha-btn-sm"
                 >
                   <Lock className="w-3.5 h-3.5" />
                   Seal Time Capsule
@@ -199,20 +210,19 @@ export default function Surprises() {
 
       {/* Surprises Grid */}
       {surprises.length === 0 ? (
-        <div className="py-20 text-center rounded-3xl bg-white/[0.02] border border-white/5 backdrop-blur-xl">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-fuchsia-500/10 flex items-center justify-center text-fuchsia-400">
-            <Gift className="w-8 h-8 opacity-60" />
+        <div className="nsha-card p-12 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-nsha-yellow border-2 border-nsha-black shadow-nsha-sm flex items-center justify-center text-nsha-black">
+            <Gift className="w-8 h-8" />
           </div>
-          <h3 className="text-lg font-semibold text-white mb-1">No Surprises Locked</h3>
-          <p className="text-sm text-slate-400 max-w-sm mx-auto">
-            Lock a sweet digital letter, anniversary promise, or photo to open in the future!
+          <h3 className="text-xl font-heading font-bold text-nsha-black mb-1">No Surprises Locked</h3>
+          <p className="text-sm text-nsha-text-secondary max-w-sm mx-auto">
+            Lock a sweet digital letter, anniversary promise, or memory to open in the future!
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {surprises.map((s) => {
             const { canUnlock, text: timeText } = getTimeRemaining(s.unlockAt);
-            const isAuthor = s.fromPartner === partner;
             const authorName = s.fromPartner === 1 ? couple?.partner1Name : couple?.partner2Name;
 
             return (
@@ -220,67 +230,67 @@ export default function Surprises() {
                 key={s.id}
                 whileHover={{ y: -3 }}
                 className={cn(
-                  'p-6 rounded-3xl border backdrop-blur-xl flex flex-col justify-between transition-all shadow-xl',
+                  'nsha-card p-6 flex flex-col justify-between transition-all',
                   s.isUnlocked
-                    ? 'bg-gradient-to-br from-fuchsia-950/20 to-slate-900 border-fuchsia-500/30'
-                    : 'bg-white/[0.03] border-white/10'
+                    ? 'bg-[#F2EFFE]'
+                    : 'bg-nsha-surface'
                 )}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div
                       className={cn(
-                        'w-12 h-12 rounded-2xl flex items-center justify-center text-xl border',
+                        'w-12 h-12 rounded-xl flex items-center justify-center text-xl border-2 border-nsha-black shadow-nsha-sm',
                         s.isUnlocked
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                          : 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20'
+                          ? 'bg-nsha-green text-nsha-black'
+                          : 'bg-nsha-pink text-white'
                       )}
                     >
-                      {s.isUnlocked ? <Unlock className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+                      {s.isUnlocked ? <Unlock className="w-6 h-6 stroke-[2.5]" /> : <Lock className="w-6 h-6 stroke-[2.5]" />}
                     </div>
 
                     <span
                       className={cn(
-                        'text-xs px-3 py-1 rounded-full font-medium border flex items-center gap-1.5',
+                        'text-xs px-3 py-1 rounded-lg font-heading font-bold border-2 border-nsha-black flex items-center gap-1.5 shadow-nsha-sm',
                         s.isUnlocked
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          ? 'bg-nsha-green text-nsha-black'
                           : canUnlock
-                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse'
-                          : 'bg-slate-900 border-white/10 text-slate-400'
+                          ? 'bg-nsha-yellow text-nsha-black animate-bounce'
+                          : 'bg-nsha-surface text-nsha-text-secondary'
                       )}
                     >
-                      <Clock className="w-3 h-3" />
+                      <Clock className="w-3.5 h-3.5" />
                       {s.isUnlocked ? 'Unlocked' : timeText}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-white mb-1">{s.title}</h3>
-                  <p className="text-xs text-slate-400 mb-4">
-                    From <span className="text-fuchsia-400 font-medium">{authorName}</span>
+                  <h3 className="text-lg font-heading font-bold text-nsha-black mb-1">{s.title}</h3>
+                  <p className="text-xs text-nsha-text-secondary mb-4">
+                    From <span className="font-heading font-bold text-nsha-pink">{authorName}</span>
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500">
+                <div className="pt-4 border-t-2 border-nsha-black/10 flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-nsha-text-secondary">
                     Unlocks: {formatDate(s.unlockAt)}
                   </span>
 
                   {s.isUnlocked ? (
                     <button
                       onClick={() => setViewingSurprise(s)}
-                      className="text-xs font-semibold text-fuchsia-400 hover:text-fuchsia-300 flex items-center gap-1"
+                      className="nsha-btn nsha-btn-purple nsha-btn-sm"
                     >
-                      <Eye className="w-3.5 h-3.5" /> View Capsule
+                      <Eye className="w-3.5 h-3.5" /> View
                     </button>
                   ) : canUnlock ? (
                     <button
                       onClick={() => handleUnlock(s.id)}
-                      className="px-3 py-1 rounded-xl bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white text-xs font-semibold shadow-md shadow-fuchsia-500/30"
+                      className="nsha-btn nsha-btn-primary nsha-btn-sm"
                     >
                       Open Now! 🎁
                     </button>
                   ) : (
-                    <span className="text-[11px] text-slate-500 italic">Locked</span>
+                    <span className="text-xs font-heading font-bold text-nsha-text-secondary italic">Locked</span>
                   )}
                 </div>
               </motion.div>
@@ -297,35 +307,35 @@ export default function Surprises() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setViewingSurprise(null)}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-nsha-black/60 backdrop-blur-sm flex items-center justify-center p-4"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-950 border border-fuchsia-500/40 rounded-3xl max-w-lg w-full p-8 shadow-2xl space-y-5 text-center relative overflow-hidden"
+              className="bg-nsha-surface border-3 border-nsha-black rounded-[24px] max-w-lg w-full p-8 shadow-nsha space-y-6 text-center relative overflow-hidden"
             >
-              <div className="w-16 h-16 rounded-3xl bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30 mx-auto flex items-center justify-center text-2xl">
+              <div className="w-16 h-16 rounded-2xl bg-nsha-yellow text-nsha-black border-3 border-nsha-black shadow-nsha-sm mx-auto flex items-center justify-center text-3xl">
                 🎁
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-white mb-1">{viewingSurprise.title}</h3>
-                <p className="text-xs text-slate-400">
+                <h3 className="text-2xl font-heading font-bold text-nsha-black mb-1">{viewingSurprise.title}</h3>
+                <p className="text-xs text-nsha-text-secondary">
                   Written by{' '}
-                  <span className="text-fuchsia-400 font-semibold">
+                  <span className="font-heading font-bold text-nsha-pink">
                     {viewingSurprise.fromPartner === 1 ? couple?.partner1Name : couple?.partner2Name}
                   </span>
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 text-left">
-                <p className="text-sm font-serif italic text-slate-200 leading-relaxed whitespace-pre-line">
+              <div className="p-6 rounded-2xl bg-[#FFF9E6] border-2 border-nsha-black text-left shadow-nsha-sm">
+                <p className="text-sm font-body text-nsha-black leading-relaxed whitespace-pre-line">
                   {viewingSurprise.message}
                 </p>
               </div>
 
               <button
                 onClick={() => setViewingSurprise(null)}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-semibold text-sm shadow-lg shadow-fuchsia-500/25"
+                className="nsha-btn nsha-btn-primary w-full"
               >
                 Close with Love ❤️
               </button>

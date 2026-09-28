@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ArrowRight, Users, Sparkles } from 'lucide-react';
+import { Heart, ArrowRight, Users, Sparkles, Star, Camera, MessageCircle, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCoupleStore } from '@/stores';
 import { coupleApi } from '@/services/api';
@@ -80,75 +80,131 @@ export default function Welcome() {
   const couple = useCoupleStore((s) => s.couple);
 
   return (
-    <div className="min-h-screen bg-background ambient-bg flex flex-col items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-nsha-surface flex flex-col relative overflow-hidden">
+      {/* Language Switcher */}
       <div className="absolute top-6 right-6 z-20">
         <LanguageSwitcher size="sm" />
       </div>
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-primary/20"
-            style={{
-              left: `${15 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.2, 0.5, 0.2],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 3 + i * 0.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: i * 0.4,
-            }}
-          />
-        ))}
+      {/* Decorative shapes */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-nsha-yellow/30" />
+        <div className="absolute top-1/3 -left-16 w-48 h-48 rounded-full bg-nsha-pink/15" />
+        <div className="absolute bottom-20 right-10 w-32 h-32 rounded-full bg-nsha-purple/10" />
+        <div className="absolute bottom-40 left-1/4 w-24 h-24 rounded-full bg-nsha-green/10" />
       </div>
 
       <AnimatePresence mode="wait">
         {step === 'welcome' && (
           <motion.div
             key="welcome"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="text-center max-w-lg relative z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20 px-6 py-12 lg:py-0 relative z-10 max-w-[1280px] mx-auto w-full"
           >
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl gradient-primary glow-primary-strong mb-8"
-            >
-              <Heart className="w-10 h-10 text-white fill-white" />
-            </motion.div>
+            {/* Left: Hero Text */}
+            <div className="flex-1 max-w-xl text-center lg:text-left">
+              <div className="nsha-badge mb-6 inline-flex">
+                <Star className="w-3.5 h-3.5" />
+                NSHA / YOUR SHARED SPACE
+              </div>
 
-            <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4">
-              <span className="gradient-text">{t('welcome.welcomeTo')}</span>
-              <br />
-              <span className="text-foreground">{t('welcome.yourSpace')}</span>
-            </h1>
+              <h1 className="font-heading font-bold text-5xl md:text-6xl lg:text-7xl text-nsha-black mb-6 leading-[1.05] tracking-tight">
+                {t('welcome.welcomeTo')}
+                <br />
+                <span className="text-nsha-pink">{t('welcome.yourSpace')}</span>
+              </h1>
 
-            <p className="text-muted-foreground text-lg mb-3 max-w-md mx-auto">
-              {t('welcome.heroSubtitle')}
-            </p>
+              <p className="text-nsha-text-secondary text-lg md:text-xl mb-3 max-w-md mx-auto lg:mx-0">
+                {t('welcome.heroSubtitle')}
+              </p>
 
-            <p className="text-muted-foreground/60 text-sm mb-10">
-              {t('welcome.heroDescription')}
-            </p>
+              <p className="text-nsha-text-secondary/70 text-sm mb-10 max-w-sm mx-auto lg:mx-0">
+                {t('welcome.heroDescription')}
+              </p>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setStep('choice')}
-              className="gradient-primary text-white font-semibold px-8 py-4 rounded-2xl text-lg glow-primary-strong inline-flex items-center gap-2 transition-shadow hover:shadow-lg hover:shadow-primary/20"
-            >
-              {t('welcome.getStarted')}
-              <ArrowRight className="w-5 h-5" />
-            </motion.button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <button
+                  onClick={() => setStep('choice')}
+                  className="nsha-btn nsha-btn-primary text-base px-8 py-4"
+                >
+                  {t('welcome.getStarted')}
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Feature Cards Stack */}
+            <div className="flex-1 max-w-md w-full relative hidden md:block">
+              <div className="relative" style={{ height: '420px' }}>
+                {/* Card 1: Challenge */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20, rotate: -3 }}
+                  animate={{ opacity: 1, y: 0, rotate: -3 }}
+                  transition={{ delay: 0.2 }}
+                  className="nsha-card absolute top-0 left-4 right-8 p-6"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="nsha-icon-box-sm nsha-icon-box">
+                      <Target className="w-4 h-4" />
+                    </div>
+                    <span className="font-heading font-bold text-sm">Today's Challenge</span>
+                  </div>
+                  <p className="text-nsha-text-secondary text-sm">
+                    "Share something you've never told each other before"
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <span className="nsha-badge nsha-badge-green text-[10px]">Day 27</span>
+                    <span className="nsha-badge text-[10px]">🔥 Active</span>
+                  </div>
+                </motion.div>
+
+                {/* Card 2: Memory */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20, rotate: 2 }}
+                  animate={{ opacity: 1, y: 0, rotate: 2 }}
+                  transition={{ delay: 0.4 }}
+                  className="nsha-card absolute top-36 left-8 right-4 p-6"
+                  style={{ background: '#FFE28A' }}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="nsha-icon-box-sm nsha-icon-box-pink">
+                      <Camera className="w-4 h-4" />
+                    </div>
+                    <span className="font-heading font-bold text-sm">Latest Memory</span>
+                  </div>
+                  <p className="text-nsha-text-secondary text-sm">
+                    12 photos shared today
+                  </p>
+                  <div className="flex -space-x-2 mt-3">
+                    {['📸', '🌅', '☕', '🎵'].map((e, i) => (
+                      <div key={i} className="w-8 h-8 rounded-lg bg-nsha-surface border-2 border-nsha-black flex items-center justify-center text-sm">
+                        {e}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* Card 3: Chat */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20, rotate: -1 }}
+                  animate={{ opacity: 1, y: 0, rotate: -1 }}
+                  transition={{ delay: 0.6 }}
+                  className="nsha-card absolute top-72 left-0 right-12 p-6"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="nsha-icon-box-sm nsha-icon-box-purple">
+                      <MessageCircle className="w-4 h-4" />
+                    </div>
+                    <span className="font-heading font-bold text-sm">Messages</span>
+                  </div>
+                  <p className="text-nsha-text-secondary text-sm">
+                    Your private conversation space
+                  </p>
+                </motion.div>
+              </div>
+            </div>
           </motion.div>
         )}
 
@@ -158,60 +214,58 @@ export default function Welcome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-md relative z-10"
+            className="flex-1 flex items-center justify-center px-6 py-12 relative z-10"
           >
-            <h2 className="font-heading text-2xl font-bold text-center mb-8">
-              {t('welcome.howToStart')}
-            </h2>
+            <div className="w-full max-w-md">
+              <h2 className="font-heading text-3xl font-bold text-center mb-8 text-nsha-black">
+                {t('welcome.howToStart')}
+              </h2>
 
-            <div className="space-y-4">
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => setStep('create')}
-                className="w-full glass glass-hover rounded-2xl p-6 text-left transition-all duration-300 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white" />
+              <div className="space-y-4">
+                <button
+                  onClick={() => setStep('create')}
+                  className="w-full nsha-card p-6 text-left cursor-pointer group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="nsha-icon-box">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-heading font-bold text-lg text-nsha-black">{t('welcome.createSpaceTitle')}</p>
+                      <p className="text-sm text-nsha-text-secondary mt-0.5">
+                        {t('welcome.createSpaceDesc')}
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-nsha-text-secondary group-hover:translate-x-1 transition-transform" />
                   </div>
-                  <div>
-                    <p className="font-heading font-semibold text-lg">{t('welcome.createSpaceTitle')}</p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      {t('welcome.createSpaceDesc')}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </motion.button>
+                </button>
 
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => setStep('join')}
-                className="w-full glass glass-hover rounded-2xl p-6 text-left transition-all duration-300 group"
+                <button
+                  onClick={() => setStep('join')}
+                  className="w-full nsha-card p-6 text-left cursor-pointer group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="nsha-icon-box nsha-icon-box-purple">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-heading font-bold text-lg text-nsha-black">{t('welcome.joinPartnerTitle')}</p>
+                      <p className="text-sm text-nsha-text-secondary mt-0.5">
+                        {t('welcome.joinPartnerDesc')}
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-nsha-text-secondary group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setStep('welcome')}
+                className="mt-6 text-sm font-heading font-semibold text-nsha-text-secondary hover:text-nsha-black transition-colors mx-auto block"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-secondary" />
-                  </div>
-                  <div>
-                    <p className="font-heading font-semibold text-lg">{t('welcome.joinPartnerTitle')}</p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      {t('welcome.joinPartnerDesc')}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </motion.button>
+                ← {t('common.back')}
+              </button>
             </div>
-
-            <button
-              onClick={() => setStep('welcome')}
-              className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto block"
-            >
-              ← {t('common.back')}
-            </button>
           </motion.div>
         )}
 
@@ -221,87 +275,87 @@ export default function Welcome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-md relative z-10"
+            className="flex-1 flex items-center justify-center px-6 py-12 relative z-10"
           >
-            <h2 className="font-heading text-2xl font-bold text-center mb-2">
-              {t('welcome.createSpaceHeader')}
-            </h2>
-            <p className="text-muted-foreground text-center text-sm mb-8">
-              {t('welcome.createSpaceSub')}
-            </p>
+            <div className="w-full max-w-md">
+              <h2 className="font-heading text-3xl font-bold text-center mb-2 text-nsha-black">
+                {t('welcome.createSpaceHeader')}
+              </h2>
+              <p className="text-nsha-text-secondary text-center text-sm mb-8">
+                {t('welcome.createSpaceSub')}
+              </p>
 
-            <div className="glass rounded-2xl p-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t('welcome.yourName')}</label>
-                <input
-                  value={partner1Name}
-                  onChange={(e) => setPartner1Name(e.target.value)}
-                  placeholder="e.g. Alex"
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
-                />
-              </div>
+              <div className="nsha-card p-6 space-y-4">
+                <div>
+                  <label className="text-sm font-heading font-semibold text-nsha-text mb-1.5 block">{t('welcome.yourName')}</label>
+                  <input
+                    value={partner1Name}
+                    onChange={(e) => setPartner1Name(e.target.value)}
+                    placeholder="e.g. Alex"
+                    className="nsha-input"
+                  />
+                </div>
 
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t('welcome.partnerName')}</label>
-                <input
-                  value={partner2Name}
-                  onChange={(e) => setPartner2Name(e.target.value)}
-                  placeholder="e.g. Jordan"
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
-                />
-              </div>
+                <div>
+                  <label className="text-sm font-heading font-semibold text-nsha-text mb-1.5 block">{t('welcome.partnerName')}</label>
+                  <input
+                    value={partner2Name}
+                    onChange={(e) => setPartner2Name(e.target.value)}
+                    placeholder="e.g. Jordan"
+                    className="nsha-input"
+                  />
+                </div>
 
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  {t('welcome.coupleNickname')} <span className="text-muted-foreground/50">{t('welcome.optional')}</span>
-                </label>
-                <input
-                  value={coupleNickname}
-                  onChange={(e) => setCoupleNickname(e.target.value)}
-                  placeholder={partner1Name && partner2Name ? `${partner1Name} & ${partner2Name}` : 'e.g. A & J'}
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
-                />
-              </div>
+                <div>
+                  <label className="text-sm font-heading font-semibold text-nsha-text mb-1.5 block">
+                    {t('welcome.coupleNickname')} <span className="text-nsha-text-secondary font-normal">{t('welcome.optional')}</span>
+                  </label>
+                  <input
+                    value={coupleNickname}
+                    onChange={(e) => setCoupleNickname(e.target.value)}
+                    placeholder={partner1Name && partner2Name ? `${partner1Name} & ${partner2Name}` : 'e.g. A & J'}
+                    className="nsha-input"
+                  />
+                </div>
 
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  {t('welcome.relationshipDate')} <span className="text-muted-foreground/50">{t('welcome.optional')}</span>
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all [color-scheme:dark]"
-                />
-              </div>
+                <div>
+                  <label className="text-sm font-heading font-semibold text-nsha-text mb-1.5 block">
+                    {t('welcome.relationshipDate')} <span className="text-nsha-text-secondary font-normal">{t('welcome.optional')}</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="nsha-input"
+                  />
+                </div>
 
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-destructive text-center"
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500 font-semibold text-center"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+
+                <button
+                  onClick={handleCreate}
+                  disabled={loading}
+                  className="w-full nsha-btn nsha-btn-primary text-base py-3.5"
                 >
-                  {error}
-                </motion.p>
-              )}
+                  {loading ? t('welcome.creating') : t('welcome.createBtn')}
+                </button>
+              </div>
 
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleCreate}
-                disabled={loading}
-                className="w-full gradient-primary text-white font-semibold py-3.5 rounded-xl text-base glow-primary disabled:opacity-60 transition-all"
+              <button
+                onClick={() => { setStep('choice'); setError(''); }}
+                className="mt-6 text-sm font-heading font-semibold text-nsha-text-secondary hover:text-nsha-black transition-colors mx-auto block"
               >
-                {loading ? t('welcome.creating') : t('welcome.createBtn')}
-              </motion.button>
+                ← {t('common.back')}
+              </button>
             </div>
-
-            <button
-              onClick={() => { setStep('choice'); setError(''); }}
-              className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto block"
-            >
-              ← {t('common.back')}
-            </button>
           </motion.div>
         )}
 
@@ -311,53 +365,53 @@ export default function Welcome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-md relative z-10"
+            className="flex-1 flex items-center justify-center px-6 py-12 relative z-10"
           >
-            <h2 className="font-heading text-2xl font-bold text-center mb-2">
-              {t('welcome.joinSpaceHeader')}
-            </h2>
-            <p className="text-muted-foreground text-center text-sm mb-8">
-              {t('welcome.joinSpaceSub')}
-            </p>
+            <div className="w-full max-w-md">
+              <h2 className="font-heading text-3xl font-bold text-center mb-2 text-nsha-black">
+                {t('welcome.joinSpaceHeader')}
+              </h2>
+              <p className="text-nsha-text-secondary text-center text-sm mb-8">
+                {t('welcome.joinSpaceSub')}
+              </p>
 
-            <div className="glass rounded-2xl p-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t('welcome.coupleCode')}</label>
-                <input
-                  value={coupleCode}
-                  onChange={(e) => setCoupleCode(e.target.value.toUpperCase())}
-                  placeholder="COUPLE-XXXXX"
-                  className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 text-foreground text-center text-lg font-mono tracking-wider placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all uppercase"
-                />
+              <div className="nsha-card p-6 space-y-4">
+                <div>
+                  <label className="text-sm font-heading font-semibold text-nsha-text mb-1.5 block">{t('welcome.coupleCode')}</label>
+                  <input
+                    value={coupleCode}
+                    onChange={(e) => setCoupleCode(e.target.value.toUpperCase())}
+                    placeholder="COUPLE-XXXXX"
+                    className="nsha-input text-center text-lg font-mono tracking-wider uppercase"
+                  />
+                </div>
+
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500 font-semibold text-center"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+
+                <button
+                  onClick={handleJoin}
+                  disabled={loading}
+                  className="w-full nsha-btn nsha-btn-primary text-base py-3.5"
+                >
+                  {loading ? t('welcome.joining') : t('welcome.joinBtn')}
+                </button>
               </div>
 
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-destructive text-center"
-                >
-                  {error}
-                </motion.p>
-              )}
-
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleJoin}
-                disabled={loading}
-                className="w-full gradient-primary text-white font-semibold py-3.5 rounded-xl text-base glow-primary disabled:opacity-60 transition-all"
+              <button
+                onClick={() => { setStep('choice'); setError(''); }}
+                className="mt-6 text-sm font-heading font-semibold text-nsha-text-secondary hover:text-nsha-black transition-colors mx-auto block"
               >
-                {loading ? t('welcome.joining') : t('welcome.joinBtn')}
-              </motion.button>
+                ← {t('common.back')}
+              </button>
             </div>
-
-            <button
-              onClick={() => { setStep('choice'); setError(''); }}
-              className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto block"
-            >
-              ← {t('common.back')}
-            </button>
           </motion.div>
         )}
 
@@ -367,56 +421,54 @@ export default function Welcome() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="w-full max-w-md relative z-10 text-center"
+            className="flex-1 flex items-center justify-center px-6 py-12 relative z-10"
           >
-            {createdCode && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="glass rounded-2xl p-4 mb-6"
-              >
-                <p className="text-sm text-muted-foreground mb-1">{t('welcome.shareCodePrompt')}</p>
-                <p className="font-mono text-2xl font-bold tracking-widest gradient-text">
-                  {createdCode}
-                </p>
-              </motion.div>
-            )}
+            <div className="w-full max-w-md text-center">
+              {createdCode && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="nsha-card p-5 mb-8 bg-nsha-yellow"
+                >
+                  <p className="text-sm text-nsha-text-secondary mb-1">{t('welcome.shareCodePrompt')}</p>
+                  <p className="font-mono text-2xl font-bold tracking-widest text-nsha-black">
+                    {createdCode}
+                  </p>
+                </motion.div>
+              )}
 
-            <h2 className="font-heading text-2xl font-bold mb-2">{t('welcome.whoAreYou')}</h2>
-            <p className="text-muted-foreground text-sm mb-8">
-              {t('welcome.selectIdentity')}
-            </p>
+              <h2 className="font-heading text-3xl font-bold mb-2 text-nsha-black">{t('welcome.whoAreYou')}</h2>
+              <p className="text-nsha-text-secondary text-sm mb-8">
+                {t('welcome.selectIdentity')}
+              </p>
 
-            <div className="space-y-4">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleSelectPartner(1)}
-                className="w-full glass glass-hover rounded-2xl p-6 text-center transition-all duration-300"
-              >
-                <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl font-heading font-bold text-white">
-                    {couple.partner1Name[0]?.toUpperCase()}
-                  </span>
-                </div>
-                <p className="font-heading font-semibold text-lg">{couple.partner1Name}</p>
-                <p className="text-sm text-muted-foreground">{t('welcome.partner1Label')}</p>
-              </motion.button>
+              <div className="space-y-4">
+                <button
+                  onClick={() => handleSelectPartner(1)}
+                  className="w-full nsha-card p-6 text-center cursor-pointer"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-nsha-pink border-3 border-nsha-black flex items-center justify-center mx-auto mb-3" style={{ borderWidth: '3px' }}>
+                    <span className="text-2xl font-heading font-bold text-white">
+                      {couple.partner1Name[0]?.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="font-heading font-bold text-lg text-nsha-black">{couple.partner1Name}</p>
+                  <p className="text-sm text-nsha-text-secondary">{t('welcome.partner1Label')}</p>
+                </button>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleSelectPartner(2)}
-                className="w-full glass glass-hover rounded-2xl p-6 text-center transition-all duration-300"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-secondary/20 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl font-heading font-bold text-secondary">
-                    {couple.partner2Name[0]?.toUpperCase()}
-                  </span>
-                </div>
-                <p className="font-heading font-semibold text-lg">{couple.partner2Name}</p>
-                <p className="text-sm text-muted-foreground">{t('welcome.partner2Label')}</p>
-              </motion.button>
+                <button
+                  onClick={() => handleSelectPartner(2)}
+                  className="w-full nsha-card p-6 text-center cursor-pointer"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-nsha-purple border-3 border-nsha-black flex items-center justify-center mx-auto mb-3" style={{ borderWidth: '3px' }}>
+                    <span className="text-2xl font-heading font-bold text-white">
+                      {couple.partner2Name[0]?.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="font-heading font-bold text-lg text-nsha-black">{couple.partner2Name}</p>
+                  <p className="text-sm text-nsha-text-secondary">{t('welcome.partner2Label')}</p>
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -424,4 +476,3 @@ export default function Welcome() {
     </div>
   );
 }
-

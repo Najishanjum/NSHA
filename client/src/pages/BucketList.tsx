@@ -10,8 +10,6 @@ import {
   Utensils,
   Target,
   Sparkles,
-  Heart,
-  Tag,
 } from 'lucide-react';
 import { useCoupleStore } from '@/stores';
 import { bucketListApi } from '@/services/api';
@@ -26,7 +24,6 @@ export default function BucketList() {
   const [selectedCategory, setSelectedCategory] = useState<'all' | BucketListCategory>('all');
   const [loading, setLoading] = useState(true);
 
-  // New item modal/form
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState<BucketListCategory>('experiences');
@@ -101,52 +98,49 @@ export default function BucketList() {
   const completedCount = items.filter((i) => i.isCompleted).length;
 
   return (
-    <div className="space-y-6 pb-20 max-w-4xl mx-auto">
+    <div className="py-6 lg:py-10 space-y-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <Compass className="w-6 h-6" />
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="nsha-icon-box nsha-icon-box-lime">
+            <Compass className="w-5 h-5" />
+          </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-400 via-sky-300 to-teal-400 bg-clip-text text-transparent">
-              Couple Bucket List
-            </h1>
-            <p className="text-xs md:text-sm text-slate-400">
-              Dream, plan, and check off adventures you want to experience together
-            </p>
+            <p className="nsha-page-eyebrow">NSHA / BUCKET LIST</p>
+            <h1 className="nsha-page-title">Couple Bucket List</h1>
+            <p className="nsha-page-subtitle">Dream, plan, and check off adventures together</p>
           </div>
         </div>
 
         <button
           onClick={() => setIsAdding(true)}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-sky-500 text-white font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="nsha-btn nsha-btn-primary nsha-btn-sm"
         >
           <Plus className="w-4 h-4" />
           Add Dream
         </button>
       </div>
 
-      {/* Progress overview */}
-      <div className="p-5 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl flex items-center justify-between">
+      {/* Progress */}
+      <div className="nsha-card p-5 flex items-center justify-between">
         <div>
-          <span className="text-xs text-slate-400">Adventures Accomplished</span>
-          <p className="text-xl font-bold text-white mt-0.5">
+          <span className="text-xs font-heading font-bold text-nsha-text-secondary uppercase tracking-wider">Adventures Accomplished</span>
+          <p className="font-heading font-bold text-xl text-nsha-black mt-0.5">
             {completedCount} of {items.length} completed
           </p>
         </div>
         <div className="w-32 sm:w-48">
-          <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
+          <div className="nsha-progress">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-sky-400 rounded-full"
+              className="nsha-progress-fill bg-nsha-green"
               style={{ width: `${items.length > 0 ? (completedCount / items.length) * 100 : 0}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Categories Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+      {/* Categories */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         {(
           [
             { id: 'all', label: 'All Adventures' },
@@ -160,10 +154,10 @@ export default function BucketList() {
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
             className={cn(
-              'px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border',
+              'px-4 py-2 rounded-xl text-xs font-heading font-bold whitespace-nowrap transition-all',
               selectedCategory === cat.id
-                ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300 shadow-lg shadow-indigo-500/10'
-                : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white'
+                ? 'bg-nsha-lime text-nsha-black border-2 border-nsha-black shadow-[3px_3px_0_#090909]'
+                : 'bg-nsha-surface text-nsha-text-secondary border-2 border-transparent hover:border-nsha-black/20'
             )}
           >
             {cat.label}
@@ -171,27 +165,25 @@ export default function BucketList() {
         ))}
       </div>
 
-      {/* Add Dream Modal / Form */}
+      {/* Add Form */}
       <AnimatePresence>
         {isAdding && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-6 rounded-3xl bg-slate-950 border border-indigo-500/30 shadow-2xl backdrop-blur-xl"
+            className="nsha-card p-6"
           >
-            <h3 className="text-lg font-bold text-white mb-4">Add a New Shared Dream</h3>
+            <h3 className="font-heading font-bold text-lg text-nsha-black mb-4">Add a New Shared Dream</h3>
             <form onSubmit={handleAddItem} className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="e.g. Watch the northern lights together in Iceland"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500"
-                  autoFocus
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="e.g. Watch the northern lights together in Iceland"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                className="nsha-input"
+                autoFocus
+              />
 
               <div className="flex flex-wrap gap-2">
                 {(['travel', 'experiences', 'food', 'goals'] as BucketListCategory[]).map((cat) => (
@@ -200,10 +192,10 @@ export default function BucketList() {
                     type="button"
                     onClick={() => setNewCategory(cat)}
                     className={cn(
-                      'px-3 py-1.5 rounded-lg text-xs capitalize border transition-all',
+                      'px-3 py-1.5 rounded-xl text-xs font-heading font-bold capitalize border-2 transition-all',
                       newCategory === cat
-                        ? 'bg-indigo-500 text-white border-indigo-400'
-                        : 'bg-slate-900 border-white/10 text-slate-400'
+                        ? 'bg-nsha-lime border-nsha-black text-nsha-black shadow-[2px_2px_0_#090909]'
+                        : 'bg-nsha-surface border-nsha-black/20 text-nsha-text-secondary'
                     )}
                   >
                     {cat}
@@ -215,14 +207,14 @@ export default function BucketList() {
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+                  className="nsha-btn nsha-btn-secondary nsha-btn-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!newTitle.trim()}
-                  className="px-5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-semibold disabled:opacity-50 transition-all"
+                  className="nsha-btn nsha-btn-green nsha-btn-sm"
                 >
                   Save Dream
                 </button>
@@ -235,9 +227,12 @@ export default function BucketList() {
       {/* Items List */}
       <div className="space-y-3">
         {filteredItems.length === 0 ? (
-          <div className="py-16 text-center rounded-3xl bg-white/[0.02] border border-white/5">
-            <Compass className="w-10 h-10 mx-auto text-slate-600 mb-2" />
-            <p className="text-sm text-slate-400">No dreams added in this category yet.</p>
+          <div className="nsha-card">
+            <div className="nsha-empty">
+              <span className="nsha-empty-icon">🧭</span>
+              <p className="nsha-empty-title">Nothing here yet.</p>
+              <p className="nsha-empty-text">No dreams added in this category yet.</p>
+            </div>
           </div>
         ) : (
           filteredItems.map((item) => {
@@ -249,43 +244,41 @@ export default function BucketList() {
                 key={item.id}
                 layout
                 className={cn(
-                  'p-4 rounded-2xl border transition-all backdrop-blur-xl flex items-center justify-between gap-4 group',
-                  item.isCompleted
-                    ? 'bg-emerald-500/5 border-emerald-500/20'
-                    : 'bg-white/[0.03] border-white/10 hover:border-white/20'
+                  'nsha-card-sm p-4 flex items-center justify-between gap-4 group',
+                  item.isCompleted ? 'bg-[#E8FFE8]' : ''
                 )}
               >
                 <div className="flex items-center gap-3.5 flex-1 min-w-0">
                   <button
                     onClick={() => handleToggle(item.id)}
-                    className="text-slate-400 hover:text-emerald-400 transition-colors flex-shrink-0"
+                    className="text-nsha-text-secondary hover:text-nsha-green transition-colors flex-shrink-0"
                   >
                     {item.isCompleted ? (
-                      <CheckCircle className="w-6 h-6 text-emerald-400 fill-emerald-400/20" />
+                      <CheckCircle className="w-6 h-6 text-nsha-green" />
                     ) : (
-                      <Circle className="w-6 h-6 text-slate-500" />
+                      <Circle className="w-6 h-6" />
                     )}
                   </button>
 
                   <div className="min-w-0 flex-1">
                     <p
                       className={cn(
-                        'text-sm font-medium transition-all truncate',
-                        item.isCompleted ? 'line-through text-slate-500' : 'text-white'
+                        'text-sm font-heading font-semibold transition-all truncate',
+                        item.isCompleted ? 'line-through text-nsha-text-secondary' : 'text-nsha-black'
                       )}
                     >
                       {item.title}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900 border border-white/10 text-slate-400 flex items-center gap-1 capitalize">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="nsha-badge nsha-badge-outline text-[10px] capitalize">
                         <Icon className="w-2.5 h-2.5" />
                         {item.category}
                       </span>
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-nsha-text-secondary font-semibold">
                         Added by {addedByName || 'Partner'}
                       </span>
                       {item.isCompleted && item.completedAt && (
-                        <span className="text-[10px] text-emerald-400/80">
+                        <span className="text-[10px] text-nsha-green font-semibold">
                           • Completed {formatDate(item.completedAt)}
                         </span>
                       )}
@@ -295,7 +288,7 @@ export default function BucketList() {
 
                 <button
                   onClick={() => handleDelete(item.id)}
-                  className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 p-2 transition-opacity"
+                  className="opacity-0 group-hover:opacity-100 text-nsha-text-secondary hover:text-red-500 p-2 transition-opacity"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

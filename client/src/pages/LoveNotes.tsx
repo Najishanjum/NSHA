@@ -3,13 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart,
   Plus,
-  Sparkles,
   Trash2,
   Send,
-  Pin,
-  Smile,
-  Clock,
-  BookOpen,
 } from 'lucide-react';
 import { useCoupleStore } from '@/stores';
 import { loveNoteApi } from '@/services/api';
@@ -78,58 +73,55 @@ export default function LoveNotes() {
     'Just a reminder that you are my favorite person ❤️',
   ];
 
+  const noteAccents = ['bg-nsha-yellow-soft', 'bg-[#FFE0EE]', 'bg-[#E8E0FF]', 'bg-[#E0FFE8]', 'bg-nsha-surface'];
+
   return (
-    <div className="space-y-6 pb-20 max-w-5xl mx-auto">
+    <div className="py-6 lg:py-10 space-y-8 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="p-2.5 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20">
-            <Heart className="w-6 h-6 fill-rose-500/20" />
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="nsha-icon-box nsha-icon-box-pink">
+            <Heart className="w-5 h-5" />
+          </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
-              {t('loveNotes.title')}
-            </h1>
-            <p className="text-xs md:text-sm text-slate-400">
-              {t('loveNotes.subtitle')}
-            </p>
+            <p className="nsha-page-eyebrow">NSHA / LOVE NOTES</p>
+            <h1 className="nsha-page-title">{t('loveNotes.title')}</h1>
+            <p className="nsha-page-subtitle">{t('loveNotes.subtitle')}</p>
           </div>
         </div>
 
         <button
           onClick={() => setIsWriting(true)}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="nsha-btn nsha-btn-pink nsha-btn-sm"
         >
           <Plus className="w-4 h-4" />
           {t('loveNotes.leaveSpecial')}
         </button>
       </div>
 
-      {/* Write Note Modal / Form */}
+      {/* Write Note */}
       <AnimatePresence>
         {isWriting && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="p-6 rounded-3xl bg-slate-950 border border-rose-500/30 shadow-2xl backdrop-blur-xl space-y-4"
+            className="nsha-card p-6 space-y-4"
           >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Heart className="w-4 h-4 text-rose-400 fill-rose-500" />
-                {t('loveNotes.subtitle')}
-              </h3>
+            <div className="flex items-center gap-2">
+              <Heart className="w-4 h-4 text-nsha-pink" />
+              <h3 className="font-heading font-bold text-lg text-nsha-black">{t('loveNotes.subtitle')}</h3>
             </div>
 
-            {/* Quick Inspiration Prompts */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              <span className="text-xs text-slate-500 flex-shrink-0">Ideas:</span>
+            {/* Prompts */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <span className="text-xs text-nsha-text-secondary font-semibold flex-shrink-0">Ideas:</span>
               {romanticPrompts.map((p, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => setContent(p + ' ')}
-                  className="px-3 py-1 rounded-full bg-slate-900 border border-white/5 text-[11px] text-slate-300 hover:text-white hover:border-rose-500/40 whitespace-nowrap transition-all"
+                  className="px-3 py-1 rounded-xl bg-nsha-surface border-2 border-nsha-black/10 text-[11px] text-nsha-text-secondary hover:text-nsha-black hover:border-nsha-pink/40 whitespace-nowrap transition-all"
                 >
                   {p}
                 </button>
@@ -142,7 +134,7 @@ export default function LoveNotes() {
                 onChange={(e) => setContent(e.target.value)}
                 rows={4}
                 placeholder={t('loveNotes.writePlaceholder')}
-                className="w-full p-4 rounded-2xl bg-slate-900/90 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-rose-500 resize-none font-serif leading-relaxed"
+                className="nsha-input resize-none leading-relaxed"
                 autoFocus
               />
 
@@ -150,14 +142,14 @@ export default function LoveNotes() {
                 <button
                   type="button"
                   onClick={() => setIsWriting(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+                  className="nsha-btn nsha-btn-secondary nsha-btn-sm"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={!content.trim()}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-semibold disabled:opacity-50 transition-all shadow-lg shadow-rose-500/20"
+                  className="nsha-btn nsha-btn-pink nsha-btn-sm"
                 >
                   <Send className="w-3.5 h-3.5" />
                   {t('loveNotes.sendNote')}
@@ -168,13 +160,14 @@ export default function LoveNotes() {
         )}
       </AnimatePresence>
 
-      {/* Sticky Notes Grid */}
+      {/* Notes Grid */}
       {notes.length === 0 ? (
-        <div className="py-20 text-center rounded-3xl bg-white/[0.02] border border-white/5 backdrop-blur-xl">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400">
-            <Heart className="w-8 h-8 opacity-60 fill-rose-500/20" />
+        <div className="nsha-card">
+          <div className="nsha-empty">
+            <span className="nsha-empty-icon">💌</span>
+            <p className="nsha-empty-title">{t('loveNotes.emptyState')}</p>
+            <p className="nsha-empty-text">Your first love note is waiting to be written.</p>
           </div>
-          <h3 className="text-lg font-semibold text-white mb-1">{t('loveNotes.emptyState')}</h3>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
@@ -182,8 +175,9 @@ export default function LoveNotes() {
             const authorName = note.partner === 1 ? couple?.partner1Name : couple?.partner2Name;
             const isFromMe = note.partner === partner;
 
-            const rotations = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0'];
+            const rotations = ['rotate-1', '-rotate-1', 'rotate-[1.5deg]', '-rotate-[1.5deg]', 'rotate-0'];
             const rotClass = rotations[idx % rotations.length];
+            const accentBg = noteAccents[idx % noteAccents.length];
 
             return (
               <motion.div
@@ -192,31 +186,30 @@ export default function LoveNotes() {
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.02, rotate: 0 }}
                 className={cn(
-                  'p-6 rounded-3xl border shadow-xl backdrop-blur-xl relative flex flex-col justify-between transition-all group',
+                  'nsha-card p-6 relative flex flex-col justify-between group',
                   rotClass,
-                  note.partner === 1
-                    ? 'bg-gradient-to-br from-rose-950/40 via-slate-900/90 to-pink-950/30 border-rose-500/25'
-                    : 'bg-gradient-to-br from-purple-950/40 via-slate-900/90 to-indigo-950/30 border-purple-500/25'
+                  accentBg
                 )}
               >
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-gradient-to-r from-rose-400 to-amber-300 shadow-md" />
+                {/* Pin */}
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-nsha-pink border-2 border-nsha-black shadow-sm" />
 
-                <div className="mt-3 mb-6">
-                  <p className="text-sm font-serif italic text-slate-200 leading-relaxed whitespace-pre-line">
+                <div className="mt-4 mb-6">
+                  <p className="text-sm italic text-nsha-black leading-relaxed whitespace-pre-line">
                     "{note.content}"
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                <div className="pt-3 flex items-center justify-between text-xs" style={{ borderTop: '2px solid #090909' }}>
                   <div>
-                    <span className="font-semibold text-rose-400">— {authorName}</span>
-                    <p className="text-[10px] text-slate-500">{formatDate(note.createdAt)}</p>
+                    <span className="font-heading font-bold text-nsha-pink">— {authorName}</span>
+                    <p className="text-[10px] text-nsha-text-secondary">{formatDate(note.createdAt)}</p>
                   </div>
 
                   {isFromMe && (
                     <button
                       onClick={() => handleDelete(note.id)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 transition-opacity p-1"
+                      className="opacity-0 group-hover:opacity-100 text-nsha-text-secondary hover:text-red-500 transition-opacity p-1"
                       title={t('common.delete')}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -231,4 +224,3 @@ export default function LoveNotes() {
     </div>
   );
 }
-

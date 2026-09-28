@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Camera, Mic, MessageCircle, Heart, Sparkles, Upload, X, Check, Play, Square, Pause,
-  ChevronRight, Image as ImageIcon, Video, Plus, Smile, MicOff
+  Camera, Mic, Sparkles, X, Check, Play, Square,
+  Plus, Smile
 } from 'lucide-react';
 import { cn, getDateString } from '@/lib/utils';
 import { useCoupleStore, useUIStore, useNotificationStore } from '@/stores';
 import { challengeApi, photoApi, voiceApi, questionApi, moodApi } from '@/services/api';
 import { DAILY_PHOTO_PROMPTS, DAILY_QUESTIONS, MOOD_OPTIONS } from '@/types';
-import type { DailyChallenge, Photo, VoiceClip, MoodValue, PartnerNumber } from '@/types';
+import type { DailyChallenge, Photo, VoiceClip, MoodValue } from '@/types';
 import { useLanguage } from '@/i18n';
 
 export default function Challenge() {
@@ -17,7 +17,6 @@ export default function Challenge() {
   const currentPartner = useCoupleStore((s) => s.currentPartner);
   const myName = useCoupleStore((s) => s.getMyName());
   const partnerName = useCoupleStore((s) => s.getPartnerName());
-  const { setShowCompletionAnimation } = useUIStore();
   const { addNotification } = useNotificationStore();
 
   const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
@@ -46,7 +45,6 @@ export default function Challenge() {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const today = getDateString();
   const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
   const todayPrompts = DAILY_PHOTO_PROMPTS[dayOfYear % DAILY_PHOTO_PROMPTS.length];
   const todayQuestion = DAILY_QUESTIONS[dayOfYear % DAILY_QUESTIONS.length];
@@ -89,7 +87,6 @@ export default function Challenge() {
   const myQuestion = challenge ? (currentPartner === 1 ? challenge.partner1Question : challenge.partner2Question) : false;
   const partnerQuestionDone = challenge ? (currentPartner === 1 ? challenge.partner2Question : challenge.partner1Question) : false;
   const myMoodVal = challenge ? (currentPartner === 1 ? challenge.partner1Mood : challenge.partner2Mood) : null;
-  const partnerMoodVal = challenge ? (currentPartner === 1 ? challenge.partner2Mood : challenge.partner1Mood) : null;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -229,291 +226,305 @@ export default function Challenge() {
   const isComplete = challenge?.status === 'completed';
 
   return (
-    <div className="px-4 lg:px-8 py-6 max-w-3xl mx-auto">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="font-heading text-2xl md:text-3xl font-bold">
-            <span className="gradient-text">{t('challenge.title')}</span>
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {t('challenge.subtitle')}
-          </p>
+    <div className="py-6 lg:py-10 max-w-4xl mx-auto w-full space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="nsha-icon-box nsha-icon-box-pink">
+            <Camera className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="nsha-page-eyebrow">NSHA / DAILY CHALLENGE</p>
+            <h1 className="nsha-page-title">{t('challenge.title')}</h1>
+            <p className="nsha-page-subtitle">{t('challenge.subtitle')}</p>
+          </div>
         </div>
 
-        {/* Completion banner */}
-        <AnimatePresence>
-          {isComplete && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="gradient-primary rounded-2xl p-6 text-center text-white glow-primary-strong"
-            >
-              <span className="text-4xl mb-2 block">🎉</span>
-              <h2 className="font-heading text-xl font-bold">{t('challenge.challengeCompleted')}</h2>
-              <p className="text-white/80 text-sm mt-1">{t('challenge.youAreOnFire')}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="flex items-center gap-2">
+          <span className="nsha-badge nsha-badge-purple">
+            {isComplete ? 'Challenge Completed 🎉' : 'In Progress'}
+          </span>
+        </div>
+      </div>
 
-        {/* ─── Photo Challenge ─── */}
-        <div className="glass rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Camera className="w-5 h-5 text-primary" />
-              <h2 className="font-heading font-semibold text-lg">{t('challenge.photosTitle')}</h2>
+      {/* Completion banner */}
+      <AnimatePresence>
+        {isComplete && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="nsha-card p-6 text-center bg-nsha-yellow border-3 border-nsha-black shadow-nsha"
+          >
+            <span className="text-4xl mb-2 block">🎉</span>
+            <h2 className="font-heading text-2xl font-bold text-nsha-black">{t('challenge.challengeCompleted')}</h2>
+            <p className="font-heading font-medium text-nsha-black text-sm mt-1">{t('challenge.youAreOnFire')}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Photo Challenge ─── */}
+      <div className="nsha-card p-6 sm:p-8 space-y-6">
+        <div className="flex items-center justify-between border-b-2 border-nsha-black/10 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="nsha-icon-box nsha-icon-box-lime nsha-icon-box-sm">
+              <Camera className="w-4 h-4 text-nsha-black" />
             </div>
-            <span className="text-sm text-muted-foreground">
-              {Math.min(myPhotoCount + partnerPhotoCount, requiredPhotos * 2)} / {requiredPhotos * 2}
-            </span>
+            <h2 className="font-heading font-bold text-xl text-nsha-black">{t('challenge.photosTitle')}</h2>
           </div>
+          <span className="text-xs font-heading font-bold text-nsha-text-secondary bg-white px-3 py-1 rounded-lg border border-nsha-black/20">
+            {Math.min(myPhotoCount + partnerPhotoCount, requiredPhotos * 2)} / {requiredPhotos * 2} photos
+          </span>
+        </div>
 
-          {/* Progress bars */}
-          <div className="space-y-3 mb-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-muted-foreground">{myName}</span>
-                <span className={cn(myPhotoCount >= requiredPhotos ? 'text-green-400' : 'text-muted-foreground')}>
-                  {myPhotoCount >= requiredPhotos ? t('challenge.missionComplete') : t('challenge.photosCount', { count: myPhotoCount })} {myPhotoCount >= requiredPhotos ? '✅' : ''}
-                </span>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full gradient-primary rounded-full"
-                  animate={{ width: `${Math.min(100, (myPhotoCount / requiredPhotos) * 100)}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
+        {/* Progress bars */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 rounded-xl bg-white border-2 border-nsha-black shadow-sm space-y-2">
+            <div className="flex justify-between text-xs font-heading font-bold">
+              <span className="text-nsha-black">{myName}</span>
+              <span className={cn(myPhotoCount >= requiredPhotos ? 'text-emerald-700' : 'text-nsha-text-secondary')}>
+                {myPhotoCount >= requiredPhotos ? t('challenge.missionComplete') : t('challenge.photosCount', { count: myPhotoCount })} {myPhotoCount >= requiredPhotos ? '✅' : ''}
+              </span>
             </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-muted-foreground">{partnerName}</span>
-                <span className={cn(partnerPhotoCount >= requiredPhotos ? 'text-green-400' : 'text-muted-foreground')}>
-                  {t('challenge.photosCount', { count: partnerPhotoCount })} {partnerPhotoCount >= requiredPhotos ? '✅' : ''}
-                </span>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-secondary rounded-full"
-                  animate={{ width: `${Math.min(100, (partnerPhotoCount / requiredPhotos) * 100)}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
+            <div className="nsha-progress">
+              <motion.div
+                className="nsha-progress-fill bg-nsha-green"
+                animate={{ width: `${Math.min(100, (myPhotoCount / requiredPhotos) * 100)}%` }}
+                transition={{ duration: 0.5 }}
+              />
             </div>
           </div>
 
-          {/* Photo prompts */}
-          {photosRemaining > 0 && (
-            <div className="mb-4 space-y-1.5">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t('photo.selectPrompt')}</p>
+          <div className="p-4 rounded-xl bg-white border-2 border-nsha-black shadow-sm space-y-2">
+            <div className="flex justify-between text-xs font-heading font-bold">
+              <span className="text-nsha-black">{partnerName}</span>
+              <span className={cn(partnerPhotoCount >= requiredPhotos ? 'text-emerald-700' : 'text-nsha-text-secondary')}>
+                {t('challenge.photosCount', { count: partnerPhotoCount })} {partnerPhotoCount >= requiredPhotos ? '✅' : ''}
+              </span>
+            </div>
+            <div className="nsha-progress">
+              <motion.div
+                className="nsha-progress-fill bg-nsha-purple"
+                animate={{ width: `${Math.min(100, (partnerPhotoCount / requiredPhotos) * 100)}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Photo prompts */}
+        {photosRemaining > 0 && (
+          <div className="p-4 rounded-xl bg-[#FFF9E6] border-2 border-nsha-black space-y-2 shadow-sm">
+            <p className="text-xs font-heading font-bold uppercase tracking-wider text-nsha-text-secondary">{t('photo.selectPrompt')}</p>
+            <div className="space-y-1">
               {todayPrompts.slice(myPhotoCount, requiredPhotos).map((prompt, i) => (
-                <p key={i} className="text-sm text-muted-foreground/80 pl-3 border-l-2 border-primary/30">
+                <p key={i} className="text-xs font-body font-medium text-nsha-black pl-3 border-l-2 border-nsha-black">
                   {prompt}
                 </p>
               ))}
             </div>
-          )}
-
-          {/* Uploaded photos */}
-          {(myPhotos.length > 0 || partnerPhotosArr.length > 0) && (
-            <div className="mb-4 space-y-3">
-              {myPhotos.length > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1.5 font-medium">{myName}:</p>
-                  <div className="grid grid-cols-5 gap-2">
-                    {myPhotos.map((photo) => (
-                      <div
-                        key={photo.id}
-                        onClick={() => setActivePhotoModal(photo)}
-                        className="aspect-square rounded-xl overflow-hidden bg-slate-900 border border-white/10 relative cursor-pointer hover:border-rose-500/50 hover:scale-105 transition-all p-1 flex items-center justify-center"
-                      >
-                        <img src={photo.fileUrl} alt="" className="w-full h-full object-contain rounded-lg" />
-                        <div className="absolute bottom-1 right-1 bg-black/70 rounded-full p-0.5">
-                          <Check className="w-3 h-3 text-green-400" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {partnerPhotosArr.length > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1.5 font-medium">{partnerName}:</p>
-                  <div className="grid grid-cols-5 gap-2">
-                    {partnerPhotosArr.map((photo) => (
-                      <div
-                        key={photo.id}
-                        onClick={() => setActivePhotoModal(photo)}
-                        className="aspect-square rounded-xl overflow-hidden bg-slate-900 border border-white/10 relative cursor-pointer hover:border-pink-500/50 hover:scale-105 transition-all p-1 flex items-center justify-center"
-                      >
-                        <img src={photo.fileUrl} alt="" className="w-full h-full object-contain rounded-lg" />
-                        <div className="absolute bottom-1 right-1 bg-black/70 rounded-full p-0.5">
-                          <Check className="w-3 h-3 text-pink-400" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Upload button */}
-          {photosRemaining > 0 && (
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full py-3 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/50 text-primary flex items-center justify-center gap-2 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="font-medium">{t('photo.sendPhoto')} ({t('challenge.photosRemaining', { count: photosRemaining })})</span>
-            </motion.button>
-          )}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileSelect}
-            className="hidden"
-            capture={undefined}
-          />
-        </div>
-
-        {/* ─── VC Challenge ─── */}
-        <div className="glass rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Mic className="w-5 h-5 text-primary" />
-              <h2 className="font-heading font-semibold text-lg">{t('challenge.vcTitle')}</h2>
-            </div>
           </div>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-            {/* My VC with Listen button */}
-            <div className={cn('p-3 rounded-xl border flex items-center justify-between', myVC ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-900/50 border-white/5')}>
+        {/* Uploaded photos */}
+        {(myPhotos.length > 0 || partnerPhotosArr.length > 0) && (
+          <div className="space-y-4">
+            {myPhotos.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-white">{myName}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{myVC ? `✅ ${t('challenge.clipDone')} (${formatTime(myVC.duration)})` : `⏳ ${t('challenge.clipPending')}`}</p>
+                <p className="text-xs font-heading font-bold text-nsha-black mb-2">{myName}'s Photos:</p>
+                <div className="grid grid-cols-5 gap-3">
+                  {myPhotos.map((photo) => (
+                    <div
+                      key={photo.id}
+                      onClick={() => setActivePhotoModal(photo)}
+                      className="aspect-square rounded-xl overflow-hidden bg-nsha-surface border-2 border-nsha-black relative cursor-pointer hover:-translate-y-1 transition-all p-1 flex items-center justify-center shadow-sm"
+                    >
+                      <img src={photo.fileUrl} alt="" className="w-full h-full object-cover rounded-lg" />
+                      <div className="absolute bottom-1.5 right-1.5 bg-nsha-green border border-nsha-black rounded-full p-0.5 shadow-sm">
+                        <Check className="w-3 h-3 text-nsha-black stroke-[3]" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              {myVC && (
-                <button
-                  onClick={() => handlePlayVC(myVC)}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md hover:bg-emerald-600 transition-all"
-                >
-                  {playingVC === myVC.id ? <Square className="w-3 h-3 fill-white" /> : <Play className="w-3 h-3 fill-white" />}
-                  {playingVC === myVC.id ? t('voice.pause') : t('voice.play')}
-                </button>
-              )}
-            </div>
+            )}
 
-            {/* Partner VC with Listen button */}
-            <div className={cn('p-3 rounded-xl border flex items-center justify-between', partnerVC ? 'bg-pink-500/10 border-pink-500/30' : 'bg-slate-900/50 border-white/5')}>
+            {partnerPhotosArr.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-white">{partnerName}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{partnerVC ? `✅ ${t('challenge.clipDone')} (${formatTime(partnerVC.duration)})` : `⏳ ${t('voice.recordForPartner')}`}</p>
+                <p className="text-xs font-heading font-bold text-nsha-black mb-2">{partnerName}'s Photos:</p>
+                <div className="grid grid-cols-5 gap-3">
+                  {partnerPhotosArr.map((photo) => (
+                    <div
+                      key={photo.id}
+                      onClick={() => setActivePhotoModal(photo)}
+                      className="aspect-square rounded-xl overflow-hidden bg-nsha-surface border-2 border-nsha-black relative cursor-pointer hover:-translate-y-1 transition-all p-1 flex items-center justify-center shadow-sm"
+                    >
+                      <img src={photo.fileUrl} alt="" className="w-full h-full object-cover rounded-lg" />
+                      <div className="absolute bottom-1.5 right-1.5 bg-nsha-pink border border-nsha-black rounded-full p-0.5 shadow-sm">
+                        <Check className="w-3 h-3 text-white stroke-[3]" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              {partnerVC && (
-                <button
-                  onClick={() => handlePlayVC(partnerVC)}
-                  className="px-3 py-1.5 rounded-lg bg-pink-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md hover:bg-pink-600 transition-all"
-                >
-                  {playingVC === partnerVC.id ? <Square className="w-3 h-3 fill-white" /> : <Play className="w-3 h-3 fill-white" />}
-                  {playingVC === partnerVC.id ? t('voice.pause') : t('voice.play')}
-                </button>
-              )}
+            )}
+          </div>
+        )}
+
+        {/* Upload button */}
+        {photosRemaining > 0 && (
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full py-4 rounded-xl border-3 border-dashed border-nsha-black hover:bg-nsha-yellow/20 flex items-center justify-center gap-2 font-heading font-bold text-sm text-nsha-black transition-all"
+          >
+            <Plus className="w-5 h-5 stroke-[2.5]" />
+            <span>{t('photo.sendPhoto')} ({t('challenge.photosRemaining', { count: photosRemaining })})</span>
+          </button>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+      </div>
+
+      {/* ─── VC Challenge ─── */}
+      <div className="nsha-card p-6 sm:p-8 space-y-6">
+        <div className="flex items-center gap-3 border-b-2 border-nsha-black/10 pb-4">
+          <div className="nsha-icon-box nsha-icon-box-purple nsha-icon-box-sm">
+            <Mic className="w-4 h-4 text-white" />
+          </div>
+          <h2 className="font-heading font-bold text-xl text-nsha-black">{t('challenge.vcTitle')}</h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* My VC with Listen button */}
+          <div className={cn('p-4 rounded-xl border-2 border-nsha-black flex items-center justify-between shadow-sm', myVC ? 'bg-[#E6F9EC]' : 'bg-white')}>
+            <div>
+              <p className="text-xs font-heading font-bold text-nsha-black">{myName}</p>
+              <p className="text-xs text-nsha-text-secondary mt-0.5">{myVC ? `✅ ${t('challenge.clipDone')} (${formatTime(myVC.duration)})` : `⏳ ${t('challenge.clipPending')}`}</p>
             </div>
+            {myVC && (
+              <button
+                onClick={() => handlePlayVC(myVC)}
+                className="nsha-btn nsha-btn-primary nsha-btn-sm"
+              >
+                {playingVC === myVC.id ? <Square className="w-3.5 h-3.5 fill-nsha-black" /> : <Play className="w-3.5 h-3.5 fill-nsha-black" />}
+                {playingVC === myVC.id ? t('voice.pause') : t('voice.play')}
+              </button>
+            )}
           </div>
 
-          {!myVC && (
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              onClick={() => setShowVCModal(true)}
-              className="w-full gradient-primary text-white font-semibold py-3 rounded-xl glow-primary flex items-center justify-center gap-2"
+          {/* Partner VC with Listen button */}
+          <div className={cn('p-4 rounded-xl border-2 border-nsha-black flex items-center justify-between shadow-sm', partnerVC ? 'bg-[#FBEBF1]' : 'bg-white')}>
+            <div>
+              <p className="text-xs font-heading font-bold text-nsha-black">{partnerName}</p>
+              <p className="text-xs text-nsha-text-secondary mt-0.5">{partnerVC ? `✅ ${t('challenge.clipDone')} (${formatTime(partnerVC.duration)})` : `⏳ ${t('voice.recordForPartner')}`}</p>
+            </div>
+            {partnerVC && (
+              <button
+                onClick={() => handlePlayVC(partnerVC)}
+                className="nsha-btn nsha-btn-pink nsha-btn-sm"
+              >
+                {playingVC === partnerVC.id ? <Square className="w-3.5 h-3.5 fill-white" /> : <Play className="w-3.5 h-3.5 fill-white" />}
+                {playingVC === partnerVC.id ? t('voice.pause') : t('voice.play')}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {!myVC && (
+          <button
+            onClick={() => setShowVCModal(true)}
+            className="nsha-btn nsha-btn-primary w-full"
+          >
+            <Mic className="w-5 h-5 stroke-[2.5]" />
+            {t('voice.sendClip')}
+          </button>
+        )}
+      </div>
+
+      {/* ─── Daily Question ─── */}
+      <div className="nsha-card p-6 sm:p-8 space-y-5">
+        <div className="flex items-center gap-3 border-b-2 border-nsha-black/10 pb-4">
+          <div className="nsha-icon-box nsha-icon-box-yellow nsha-icon-box-sm">
+            <Sparkles className="w-4 h-4 text-nsha-black" />
+          </div>
+          <h2 className="font-heading font-bold text-xl text-nsha-black">{t('question.title')}</h2>
+        </div>
+
+        <p className="font-heading font-bold text-lg text-nsha-black bg-[#FFF7DA] p-4 rounded-xl border-2 border-nsha-black shadow-sm">
+          "{todayQuestion}"
+        </p>
+
+        {!myQuestion ? (
+          <div className="space-y-3">
+            <textarea
+              value={questionAnswer}
+              onChange={(e) => setQuestionAnswer(e.target.value)}
+              placeholder={t('question.typeAnswer')}
+              rows={3}
+              className="nsha-input resize-none"
+            />
+            <button
+              onClick={handleAnswerQuestion}
+              disabled={!questionAnswer.trim() || submittingAnswer}
+              className="nsha-btn nsha-btn-primary w-full"
             >
-              <Mic className="w-5 h-5" />
-              {t('voice.sendClip')}
+              {submittingAnswer ? t('common.loading') : t('question.submitAnswer')}
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-emerald-800 bg-[#E6F9EC] border-2 border-nsha-black p-3.5 rounded-xl font-heading font-bold text-sm shadow-sm">
+            <Check className="w-4 h-4 stroke-[3]" />
+            <span>{t('question.answerSent')}</span>
+          </div>
+        )}
+
+        {partnerQuestionDone && (
+          <p className="text-xs font-heading font-bold text-nsha-text-secondary mt-1">{t('question.bothAnswered')}</p>
+        )}
+      </div>
+
+      {/* ─── Mood ─── */}
+      <div className="nsha-card p-6 sm:p-8 space-y-5">
+        <div className="flex items-center gap-3 border-b-2 border-nsha-black/10 pb-4">
+          <div className="nsha-icon-box nsha-icon-box-pink nsha-icon-box-sm">
+            <Smile className="w-4 h-4 text-white" />
+          </div>
+          <h2 className="font-heading font-bold text-xl text-nsha-black">{t('mood.title')}</h2>
+        </div>
+
+        <div className="flex items-center justify-around flex-wrap gap-3">
+          {MOOD_OPTIONS.map(opt => (
+            <motion.button
+              key={opt.value}
+              whileHover={{ y: -2 }}
+              whileTap={{ y: 0 }}
+              onClick={() => !myMoodVal && handleMoodSelect(opt.value)}
+              disabled={!!myMoodVal || submittingMood}
+              className={cn(
+                'flex flex-col items-center gap-1.5 p-3.5 rounded-2xl border-2 transition-all min-w-[70px]',
+                myMoodVal === opt.value
+                  ? 'bg-nsha-yellow border-nsha-black shadow-nsha-sm'
+                  : selectedMood === opt.value && !myMoodVal
+                  ? 'bg-nsha-yellow-soft border-nsha-black'
+                  : !myMoodVal
+                  ? 'bg-white border-nsha-black/20 hover:border-nsha-black cursor-pointer'
+                  : 'bg-white border-transparent opacity-40'
+              )}
+            >
+              <span className="text-2xl">{opt.emoji}</span>
+              <span className="text-xs font-heading font-bold text-nsha-black">
+                {t(`mood.options.${opt.value === 'missing-you' ? 'missingYou' : opt.value === 'not-great' ? 'notGreat' : opt.value}`)}
+              </span>
             </motion.button>
-          )}
+          ))}
         </div>
-
-        {/* ─── Daily Question ─── */}
-        <div className="glass rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <h2 className="font-heading font-semibold text-lg">{t('question.title')}</h2>
-          </div>
-          <p className="text-foreground italic mb-4">"{todayQuestion}"</p>
-
-          {!myQuestion ? (
-            <div className="space-y-3">
-              <textarea
-                value={questionAnswer}
-                onChange={(e) => setQuestionAnswer(e.target.value)}
-                placeholder={t('question.typeAnswer')}
-                rows={3}
-                className="w-full bg-muted/50 border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-              />
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={handleAnswerQuestion}
-                disabled={!questionAnswer.trim() || submittingAnswer}
-                className="w-full gradient-primary text-white font-semibold py-3 rounded-xl glow-primary disabled:opacity-50"
-              >
-                {submittingAnswer ? t('common.loading') : t('question.submitAnswer')}
-              </motion.button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-green-400 text-sm">
-              <Check className="w-4 h-4" />
-              <span>{t('question.answerSent')}</span>
-            </div>
-          )}
-
-          {partnerQuestionDone && (
-            <p className="text-xs text-muted-foreground mt-2">{t('question.bothAnswered')}</p>
-          )}
-        </div>
-
-        {/* ─── Mood ─── */}
-        <div className="glass rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Smile className="w-5 h-5 text-primary" />
-            <h2 className="font-heading font-semibold text-lg">{t('mood.title')}</h2>
-          </div>
-
-          <div className="flex items-center justify-around flex-wrap gap-2">
-            {MOOD_OPTIONS.map(opt => (
-              <motion.button
-                key={opt.value}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => !myMoodVal && handleMoodSelect(opt.value)}
-                disabled={!!myMoodVal || submittingMood}
-                className={cn(
-                  'flex flex-col items-center gap-1 p-3 rounded-xl transition-all',
-                  myMoodVal === opt.value && 'bg-primary/20 ring-2 ring-primary/50',
-                  (selectedMood === opt.value && !myMoodVal) && 'bg-primary/10',
-                  !myMoodVal && 'hover:bg-muted/50 cursor-pointer',
-                  myMoodVal && myMoodVal !== opt.value && 'opacity-40',
-                )}
-              >
-                <span className="text-2xl">{opt.emoji}</span>
-                <span className="text-xs text-muted-foreground">
-                  {t(`mood.options.${opt.value === 'missing-you' ? 'missingYou' : opt.value === 'not-great' ? 'notGreat' : opt.value}`)}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-      </motion.div>
+      </div>
 
       {/* ─── Photo Upload Modal ─── */}
       <AnimatePresence>
@@ -522,30 +533,33 @@ export default function Challenge() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 bg-nsha-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ y: 100 }}
-              animate={{ y: 0 }}
-              exit={{ y: 100 }}
-              className="glass rounded-t-2xl sm:rounded-2xl w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto"
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              className="bg-nsha-surface border-3 border-nsha-black rounded-[24px] shadow-nsha w-full max-w-lg p-6 sm:p-8 max-h-[85vh] overflow-y-auto space-y-5"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-heading font-semibold text-lg">{t('photo.uploadPhoto')}</h3>
-                <button onClick={() => { setShowPhotoModal(false); previewUrls.forEach(u => URL.revokeObjectURL(u)); setSelectedFiles([]); setPreviewUrls([]); }}>
-                  <X className="w-5 h-5" />
+              <div className="flex items-center justify-between border-b-2 border-nsha-black pb-3">
+                <h3 className="font-heading font-bold text-lg text-nsha-black">{t('photo.uploadPhoto')}</h3>
+                <button
+                  onClick={() => { setShowPhotoModal(false); previewUrls.forEach(u => URL.revokeObjectURL(u)); setSelectedFiles([]); setPreviewUrls([]); }}
+                  className="p-1.5 rounded-xl border-2 border-nsha-black hover:bg-nsha-yellow transition-all"
+                >
+                  <X className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-3 gap-3">
                 {previewUrls.map((url, i) => (
-                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-muted">
+                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden border-2 border-nsha-black shadow-sm bg-white">
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     <button
                       onClick={() => removeSelectedFile(i)}
-                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center"
+                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-nsha-black text-white flex items-center justify-center hover:bg-nsha-pink transition-colors"
                     >
-                      <X className="w-3 h-3 text-white" />
+                      <X className="w-3.5 h-3.5 stroke-[2.5]" />
                     </button>
                   </div>
                 ))}
@@ -555,18 +569,16 @@ export default function Challenge() {
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="Add a caption... (optional)"
-                className="w-full bg-muted/50 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 mb-4"
+                className="nsha-input"
               />
 
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+              <button
                 onClick={handleUploadPhotos}
                 disabled={uploadingPhotos}
-                className="w-full gradient-primary text-white font-semibold py-3 rounded-xl glow-primary disabled:opacity-60"
+                className="nsha-btn nsha-btn-primary w-full"
               >
                 {uploadingPhotos ? t('common.loading') : t('photo.uploadSuccess')}
-              </motion.button>
+              </button>
             </motion.div>
           </motion.div>
         )}
@@ -579,80 +591,74 @@ export default function Challenge() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-nsha-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.9 }}
+              initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="glass rounded-2xl w-full max-w-sm p-8 text-center"
+              exit={{ scale: 0.95 }}
+              className="bg-nsha-surface border-3 border-nsha-black rounded-[24px] shadow-nsha w-full max-w-sm p-8 text-center space-y-5"
             >
-              <h3 className="font-heading font-semibold text-lg mb-6">
+              <h3 className="font-heading font-bold text-lg text-nsha-black">
                 {audioBlob ? t('voice.clipCompleted') : recording ? t('voice.recording') : t('voice.sendClip')}
               </h3>
 
-              <div className="mb-6">
+              <div className="py-2">
                 {recording ? (
                   <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
+                    animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
-                    className="w-24 h-24 rounded-full gradient-primary mx-auto flex items-center justify-center glow-primary-strong"
+                    className="w-20 h-20 rounded-2xl bg-nsha-pink border-3 border-nsha-black shadow-nsha mx-auto flex items-center justify-center"
                   >
-                    <Mic className="w-10 h-10 text-white" />
+                    <Mic className="w-9 h-9 text-white stroke-[2.5]" />
                   </motion.div>
                 ) : audioBlob ? (
-                  <div className="w-24 h-24 rounded-full bg-green-500/20 mx-auto flex items-center justify-center">
-                    <Check className="w-10 h-10 text-green-400" />
+                  <div className="w-20 h-20 rounded-2xl bg-nsha-green border-3 border-nsha-black shadow-nsha mx-auto flex items-center justify-center">
+                    <Check className="w-9 h-9 text-nsha-black stroke-[3]" />
                   </div>
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-muted mx-auto flex items-center justify-center">
-                    <Mic className="w-10 h-10 text-muted-foreground" />
+                  <div className="w-20 h-20 rounded-2xl bg-nsha-yellow border-3 border-nsha-black shadow-nsha mx-auto flex items-center justify-center">
+                    <Mic className="w-9 h-9 text-nsha-black stroke-[2.5]" />
                   </div>
                 )}
               </div>
 
-              <p className="font-mono text-2xl mb-6">{formatTime(recordingTime)}</p>
+              <p className="font-mono font-bold text-2xl text-nsha-black">{formatTime(recordingTime)}</p>
 
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-3 pt-2">
                 {!recording && !audioBlob && (
                   <>
-                    <button onClick={cancelRecording} className="px-6 py-2.5 rounded-xl bg-muted text-muted-foreground font-medium">
+                    <button onClick={cancelRecording} className="nsha-btn nsha-btn-secondary nsha-btn-sm">
                       {t('common.cancel')}
                     </button>
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
+                    <button
                       onClick={startRecording}
-                      className="px-6 py-2.5 rounded-xl gradient-primary text-white font-semibold glow-primary"
+                      className="nsha-btn nsha-btn-primary nsha-btn-sm"
                     >
                       {t('voice.recordVoice')}
-                    </motion.button>
+                    </button>
                   </>
                 )}
                 {recording && (
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                  <button
                     onClick={stopRecording}
-                    className="px-8 py-3 rounded-xl bg-red-500 text-white font-semibold flex items-center gap-2"
+                    className="nsha-btn nsha-btn-pink w-full"
                   >
                     <Square className="w-4 h-4 fill-white" />
                     {t('voice.stopRecording')}
-                  </motion.button>
+                  </button>
                 )}
                 {audioBlob && (
                   <>
-                    <button onClick={cancelRecording} className="px-6 py-2.5 rounded-xl bg-muted text-muted-foreground font-medium">
+                    <button onClick={cancelRecording} className="nsha-btn nsha-btn-secondary nsha-btn-sm">
                       {t('common.cancel')}
                     </button>
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
+                    <button
                       onClick={handleUploadVC}
-                      className="px-6 py-2.5 rounded-xl gradient-primary text-white font-semibold glow-primary"
+                      className="nsha-btn nsha-btn-primary nsha-btn-sm"
                     >
                       {t('voice.sendClip')} ❤️
-                    </motion.button>
+                    </button>
                   </>
                 )}
               </div>
@@ -669,15 +675,15 @@ export default function Challenge() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setActivePhotoModal(null)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-nsha-black/80 backdrop-blur-sm flex items-center justify-center p-4"
           >
             <div onClick={(e) => e.stopPropagation()} className="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
-              <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-white/10 shadow-2xl p-2 max-h-[80vh] flex items-center justify-center">
+              <div className="relative rounded-2xl overflow-hidden bg-nsha-surface border-3 border-nsha-black shadow-nsha p-2 max-h-[80vh] flex items-center justify-center">
                 <img src={activePhotoModal.fileUrl} alt="" className="max-h-[75vh] max-w-full object-contain rounded-xl" />
               </div>
               <button
                 onClick={() => setActivePhotoModal(null)}
-                className="mt-3 px-6 py-2 rounded-xl bg-white/10 hover:bg-rose-500 text-white text-xs font-semibold transition-all"
+                className="mt-4 nsha-btn nsha-btn-primary nsha-btn-sm"
               >
                 {t('common.back')}
               </button>
@@ -688,4 +694,3 @@ export default function Challenge() {
     </div>
   );
 }
-
