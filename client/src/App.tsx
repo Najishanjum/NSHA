@@ -8,6 +8,7 @@ import Welcome from '@/pages/Welcome';
 import Home from '@/pages/Home';
 import Challenge from '@/pages/Challenge';
 import Memories from '@/pages/Memories';
+import Music from '@/pages/Music';
 import Voice from '@/pages/Voice';
 import Calls from '@/pages/Calls';
 import CalendarPage from '@/pages/Calendar';
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
             <Route path="/memories" element={<ProtectedRoute><Memories /></ProtectedRoute>} />
+            <Route path="/music" element={<ProtectedRoute><Music /></ProtectedRoute>} />
             <Route path="/voice" element={<ProtectedRoute><Voice /></ProtectedRoute>} />
             <Route path="/calls" element={<ProtectedRoute><Calls /></ProtectedRoute>} />
             <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />

@@ -331,3 +331,7 @@ export const notificationApi = {
     ({ success: true, data: [] }),
   markRead: async (_id: string): Promise<ApiResponse<void>> => ({ success: true }),
 };
+
+// ─── Music API ───
+export { musicApi } from './musicApi';
+

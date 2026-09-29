@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera, Mic, Sparkles, X, Check, Play, Square,
-  Plus, Smile
+  Plus, Smile, Music
 } from 'lucide-react';
 import { cn, getDateString } from '@/lib/utils';
 import { useCoupleStore, useUIStore, useNotificationStore } from '@/stores';
@@ -10,6 +10,8 @@ import { challengeApi, photoApi, voiceApi, questionApi, moodApi } from '@/servic
 import { DAILY_PHOTO_PROMPTS, DAILY_QUESTIONS, MOOD_OPTIONS } from '@/types';
 import type { DailyChallenge, Photo, VoiceClip, MoodValue } from '@/types';
 import { useLanguage } from '@/i18n';
+import { generateRomanticWav } from '@/utils/audioSynthesizer';
+
 
 export default function Challenge() {
   const { t } = useLanguage();
@@ -253,11 +255,22 @@ export default function Challenge() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="nsha-card p-6 text-center bg-nsha-yellow border-3 border-nsha-black shadow-nsha"
+            className="nsha-card p-6 text-center bg-nsha-yellow border-3 border-nsha-black shadow-nsha space-y-3"
           >
-            <span className="text-4xl mb-2 block">🎉</span>
+            <span className="text-4xl block">🎉</span>
             <h2 className="font-heading text-2xl font-bold text-nsha-black">{t('challenge.challengeCompleted')}</h2>
-            <p className="font-heading font-medium text-nsha-black text-sm mt-1">{t('challenge.youAreOnFire')}</p>
+            <p className="font-heading font-medium text-nsha-black text-sm">{t('challenge.youAreOnFire')}</p>
+            <button
+              onClick={() => {
+                const wav = generateRomanticWav('celebration');
+                const audio = new Audio(wav);
+                audio.play().catch(() => {});
+              }}
+              className="nsha-btn nsha-btn-black nsha-btn-sm inline-flex items-center gap-2"
+            >
+              <Music className="w-4 h-4" />
+              {t('music.celebrationMusic')}
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

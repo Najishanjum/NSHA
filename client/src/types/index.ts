@@ -435,3 +435,67 @@ export const COUPLE_LEVELS: CoupleLevel[] = [
   { level: 4, title: 'Unstoppable', minDays: 101, maxDays: 365, emoji: '🏔️' },
   { level: 5, title: 'Forever Archive', minDays: 366, maxDays: Infinity, emoji: '👑' },
 ];
+
+/* ─── Music & Mashup Types ─── */
+
+export type MusicMood = 'romantic' | 'emotional' | 'latenight' | 'happy' | 'energetic' | 'chill' | 'travel';
+
+export interface MusicTrack {
+  id: string;
+  coupleId: string;
+  uploadedBy: PartnerNumber;
+  title: string;
+  artist: string;
+  album?: string;
+  storagePath: string;
+  coverPath?: string;
+  duration: number;
+  isOurSong: boolean;
+  isFavorite: boolean;
+  mood?: MusicMood;
+  createdAt: string;
+}
+
+export interface Playlist {
+  id: string;
+  coupleId: string;
+  name: string;
+  description?: string;
+  coverPath?: string;
+  mood?: MusicMood;
+  trackIds: string[];
+  createdAt: string;
+}
+
+export interface MashupTrackConfig {
+  id: string;
+  trackId: string;
+  trackTitle: string;
+  position: number;
+  startTime: number;
+  endTime: number;
+  volume: number;
+  fadeIn: number;
+  fadeOut: number;
+}
+
+export interface Mashup {
+  id: string;
+  coupleId: string;
+  createdBy: PartnerNumber;
+  name: string;
+  description?: string;
+  storagePath?: string;
+  duration: number;
+  tracks: MashupTrackConfig[];
+  createdAt: string;
+}
+
+export interface MemoryMusic {
+  id: string;
+  coupleId: string;
+  memoryId: string;
+  trackId: string;
+  createdAt: string;
+}
+
